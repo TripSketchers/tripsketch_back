@@ -11,7 +11,18 @@
         <result property="provider" column="provider"/>
         <result property="enabled" column="enabled"/>
     </resultMap>
-    <select id="findUserByOauth2Id" resultType="com.sketchers.tripsketch_back.entity.User">
+    <insert id="saveUser">
+        insert into user_tb
+        values(
+            0,
+            #{email},
+            #{password},
+            null,
+            null,
+            0
+        )
+    </insert>
+    <select id="findUserByOauth2Id" resultMap="userMap">
         select
             user_id,
             email,
@@ -24,7 +35,7 @@
         where
             oauth2_id = #{oauth2Id}
     </select>
-    <select id="findUserByEmail" resultType="com.sketchers.tripsketch_back.entity.User">
+    <select id="findUserByEmail" resultMap="userMap">
         select
             user_id,
             email,
@@ -32,6 +43,14 @@
             oauth2_id,
             provider,
             enabled
+        from
+            user_tb
+        where
+            email = #{email}
+    </select>
+    <select id="checkDuplicate" resultType="java.lang.Boolean">
+        select
+            count(*) > 0
         from
             user_tb
         where
