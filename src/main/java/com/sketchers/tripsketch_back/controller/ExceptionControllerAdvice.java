@@ -1,6 +1,7 @@
 package com.sketchers.tripsketch_back.controller;
 
 import com.sketchers.tripsketch_back.exception.DuplicateException;
+import com.sketchers.tripsketch_back.exception.SigninException;
 import com.sketchers.tripsketch_back.exception.ValidException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -17,5 +18,10 @@ public class ExceptionControllerAdvice {
     @ExceptionHandler(ValidException.class)
     public ResponseEntity<?> validException(ValidException validException) {
         return ResponseEntity.badRequest().body(validException.getErrorMap());
+    }
+
+    @ExceptionHandler(SigninException.class)
+    public ResponseEntity<?> signinException(SigninException signinException) {
+        return ResponseEntity.badRequest().body(signinException.getErrorMap());
     }
 }

@@ -1,6 +1,7 @@
 package com.sketchers.tripsketch_back.controller;
 
 import com.sketchers.tripsketch_back.aop.annotation.ValidAop;
+import com.sketchers.tripsketch_back.dto.SigninReqDto;
 import com.sketchers.tripsketch_back.dto.SignupReqDto;
 import com.sketchers.tripsketch_back.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +22,14 @@ public class AuthController {
     @ValidAop
     @PostMapping("/api/auth/signup")
     public ResponseEntity<?> signup (
-            @Valid @RequestBody SignupReqDto signupReqDto,
-            BindingResult bindingResult){
+            @Valid @RequestBody SignupReqDto signupReqDto, BindingResult bindingResult){
         return ResponseEntity.ok(authService.signup(signupReqDto));
+    }
+
+    @ValidAop
+    @PostMapping("/api/auth/signin")
+    public ResponseEntity<?> signin (
+            @Valid @RequestBody SigninReqDto signinReqDto, BindingResult bindingResult) {
+        return ResponseEntity.ok(authService.signin(signinReqDto));
     }
 }
