@@ -5,8 +5,11 @@ import com.sketchers.tripsketch_back.dto.SignupReqDto;
 import com.sketchers.tripsketch_back.entity.User;
 import com.sketchers.tripsketch_back.exception.DuplicateException;
 import com.sketchers.tripsketch_back.exception.SigninException;
+import com.sketchers.tripsketch_back.jwt.JwtProvider;
 import com.sketchers.tripsketch_back.repository.AuthMapper;
+import com.sketchers.tripsketch_back.security.PrincipalUser;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +22,7 @@ public class AuthService {
 
     private final AuthMapper authMapper;
     private final PasswordEncoder passwordEncoder;
+    private final JwtProvider jwtProvider;
 
     public boolean signup(SignupReqDto signupReqDto) {
         User user = signupReqDto.toUser();
@@ -31,7 +35,7 @@ public class AuthService {
         return authMapper.saveUser(user) > 0;
     }
 
-    public boolean signin(SigninReqDto signinReqDto) {
+    public Map<String, String> signin(SigninReqDto signinReqDto) {
         User user = authMapper.findUserByEmail(signinReqDto.getEmail());
 
         // 이메일이 없거나 비밀번호가 틀린 경우
@@ -41,7 +45,14 @@ public class AuthService {
             throw new SigninException(errorMap);
         }
 
-        return true;
+        PrincipalUser principalUser = new PrincipalUser(user);
+        UsernamePasswordAuthenticationToken authenticationToken
+                = new UsernamePasswordAuthenticationToken(principalUser, null, principalUser.getAuthorities());
+        String accessToken = jwtProvider.generateToken(authenticationToken);
+
+        Map<String, String> response = new HashMap<>();
+        response.put("accessToken", accessToken);
+        return response;
     }
 
 }
