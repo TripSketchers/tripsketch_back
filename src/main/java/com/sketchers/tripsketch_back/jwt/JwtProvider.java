@@ -63,13 +63,11 @@ public class JwtProvider {
         Claims claims = getClaims(token);
         if (claims == null) return null;
 
-        User user = claims.get("oauth2Id") != null
-                ? authMapper.findUserByOauth2Id(claims.get("oauth2Id").toString())
-                : authMapper.findUserByEmail(claims.get("email").toString());
-
+        User user = authMapper.findUserByEmail(claims.get("email").toString());
         if (user == null) return null;
 
         PrincipalUser principalUser = new PrincipalUser(user);
         return new UsernamePasswordAuthenticationToken(principalUser, null, principalUser.getAuthorities());
     }
+
 }
