@@ -19,7 +19,9 @@ public class AuthService {
     public boolean signup(SignupReqDto signupReqDto) {
         User user = signupReqDto.toUser();
         if(authMapper.checkDuplicate(user.getEmail())) {
-            throw new DuplicateException(Map.of("email", "이미 사용중인 이메일입니다."));
+            Map<String, String> errorMap = new HashMap<>();
+            errorMap.put("email", "이미 사용 중인 이메일입니다.");
+            throw new DuplicateException(errorMap);
         }
         return authMapper.saveUser(user) > 0;
     }
