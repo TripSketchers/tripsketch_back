@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sketchers.tripsketch_back.repository.AuthMapper">
+    <resultMap id="userMap" type="com.sketchers.tripsketch_back.entity.User">
+        <id property="userId" column="user_id"/>
+        <result property="email" column="email"/>
+        <result property="password" column="password"/>
+        <result property="oauth2Id" column="oauth2_id"/>
+        <result property="provider" column="provider"/>
+        <result property="enabled" column="enabled"/>
+    </resultMap>
+    <insert id="saveUser">
+        insert into user_tb
+        values(
+            0,
+            #{email},
+            #{password},
+            #{oauth2Id},
+            #{provider},
+            0
+        )
+    </insert>
+    <select id="findUserByOauth2Id" resultMap="userMap">
+        select
+            user_id,
+            email,
+            password,
+            oauth2_id,
+            provider,
+            enabled
+        from
+            user_tb
+        where
+            oauth2_id = #{oauth2Id}
+    </select>
+    <select id="findUserByEmail" resultMap="userMap">
+        select
+            user_id,
+            email,
+            password,
+            oauth2_id,
+            provider,
+            enabled
+        from
+            user_tb
+        where
+            email = #{email}
+    </select>
+    <select id="checkDuplicate" resultType="java.lang.Boolean">
+        select
+            count(*) > 0
+        from
+            user_tb
+        where
+            email = #{email}
+    </select>
+</mapper>
