@@ -17,8 +17,8 @@
             0,
             #{email},
             #{password},
-            null,
-            null,
+            #{oauth2Id},
+            #{provider},
             0
         )
     </insert>

@@ -2,6 +2,9 @@ package com.sketchers.tripsketch_back.config;
 
 import com.sketchers.tripsketch_back.filter.JwtAuthenticationFilter;
 import com.sketchers.tripsketch_back.security.PrincipalEntryPoint;
+import com.sketchers.tripsketch_back.security.PrincipalUserDetailsService;
+import com.sketchers.tripsketch_back.security.oauth2.OAuth2FailureHandler;
+import com.sketchers.tripsketch_back.security.oauth2.OAuth2SuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,6 +22,9 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final PrincipalEntryPoint principalEntryPoint;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final OAuth2FailureHandler oAuth2FailureHandler;
+    private final PrincipalUserDetailsService principalUserDetailsService;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -26,12 +32,20 @@ public class SecurityConfig {
             .and()
             .csrf().disable()
             .authorizeHttpRequests()
-                .antMatchers("/api/auth/**").permitAll()
-                .anyRequest().authenticated()
+            .antMatchers("/api/auth/**")
+            .permitAll()
+            .anyRequest()
+            .authenticated()
             .and()
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .exceptionHandling()
-                .authenticationEntryPoint(principalEntryPoint);
+            .authenticationEntryPoint(principalEntryPoint)
+            .and()
+            .oauth2Login()
+            .successHandler(oAuth2SuccessHandler)
+            .failureHandler(oAuth2FailureHandler)
+            .userInfoEndpoint()
+            .userService(principalUserDetailsService);
 
         return http.build();
     }
