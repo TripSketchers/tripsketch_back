@@ -32,7 +32,7 @@ public class SecurityConfig {
             .and()
             .csrf().disable()
             .authorizeHttpRequests()
-            .antMatchers("/api/auth/**")
+            .antMatchers("/api/auth/**", "/api/account/auth/email")
             .permitAll()
             .anyRequest()
             .authenticated()

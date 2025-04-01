@@ -27,4 +27,17 @@ public class AccountController {
     public ResponseEntity<?> deleteUser(@PathVariable int userId) {
         return ResponseEntity.ok(accountService.deleteUser(userId));
     }
+
+    // 이메일 인증하기
+    @PostMapping("/api/account/auth/email")
+    public ResponseEntity<?> sendAuthenticationMail() {
+        return ResponseEntity.ok(accountService.sendAuthMail());
+    }
+
+    // 인증된 이메일 가져오기
+    @GetMapping("/api/account/auth/email")
+    public ResponseEntity<?> authenticateMail (String token) {
+        //주소의 토큰을 받고 유효한지 확인
+        return ResponseEntity.ok(accountService.authenticateMail(token) ? "인증 완료" : "인증 실패");
+    }
 }
