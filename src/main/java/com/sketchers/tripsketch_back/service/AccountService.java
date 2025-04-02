@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.mail.internet.MimeMessage;
@@ -25,6 +26,7 @@ public class AccountService {
     private final JavaMailSender javaMailSender;
     private final JwtProvider jwtProvider;
     private final AuthMapper authMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${server.serverAddress}")
     private String serverAddress;
@@ -58,7 +60,7 @@ public class AccountService {
                             " style='display: inline-block; background-color: #3b5c80; color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-size: 16px;'>" +
                             "이메일 인증하기</a>" +
                         "</div>" +
-                        "<p style='font-size: 14px; color: #666;'>본 메일은 발신 전용이며, 인증 유효 시간은 10분입니다.</p>" +
+                        "<p style='font-size: 14px; color: #666;'>본 메일은 발신 전용이며, 인증 유효 시간은 5분입니다.</p>" +
                     "</div>" +
                 "</div>", "utf-8", "html");
 
@@ -85,5 +87,13 @@ public class AccountService {
         }
 
         return accountMapper.updateEnabledToEmail(email) > 0;
+    }
+
+    public boolean checkPassword(String password) {
+        PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(passwordEncoder.matches(password, principalUser.getUser().getPassword())) {
+            return true;
+        }
+        return false;
     }
 }

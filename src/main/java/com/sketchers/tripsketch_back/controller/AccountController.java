@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
+
 @RestController
 @RequiredArgsConstructor
 public class AccountController {
@@ -39,5 +41,10 @@ public class AccountController {
     public ResponseEntity<?> authenticateMail (String token) {
         //주소의 토큰을 받고 유효한지 확인
         return ResponseEntity.ok(accountService.authenticateMail(token) ? "인증 완료" : "인증 실패");
+    }
+
+    @PostMapping("/api/account/check-password")
+    public ResponseEntity<?> checkPassword(@RequestBody Map<String, String> request) {
+        return ResponseEntity.ok(accountService.checkPassword(request.get("password")));
     }
 }
