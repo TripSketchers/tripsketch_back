@@ -11,6 +11,14 @@
         where
             email = #{email}
     </update>
+    <update id="updatePassword">
+        update
+            user_tb
+        set
+            password = #{password}
+        where
+            email = #{email}
+    </update>
 
     <delete id="deleteUser">
         delete from

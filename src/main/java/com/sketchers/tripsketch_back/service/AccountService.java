@@ -1,5 +1,6 @@
 package com.sketchers.tripsketch_back.service;
 
+import com.sketchers.tripsketch_back.dto.PasswordChangeReqDto;
 import com.sketchers.tripsketch_back.entity.User;
 import com.sketchers.tripsketch_back.exception.AuthMailException;
 import com.sketchers.tripsketch_back.exception.SendMailException;
@@ -95,5 +96,12 @@ public class AccountService {
             return true;
         }
         return false;
+    }
+
+    public int updatePassword(PasswordChangeReqDto passwordChangeReqDto) {
+        PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User newUser = principalUser.getUser();
+        newUser.setPassword(passwordEncoder.encode(passwordChangeReqDto.getNewPassword()));
+        return accountMapper.updatePassword(newUser);
     }
 }
