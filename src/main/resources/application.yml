@@ -39,6 +39,10 @@ spring:
             userInfoUri: https://openapi.naver.com/v1/nid/me
             userNameAttribute: response
 
+server:
+  port: 8080
+  serverAddress: localhost
+
 mybatis:
   mapper-locations:
     - /mappers/*.xml

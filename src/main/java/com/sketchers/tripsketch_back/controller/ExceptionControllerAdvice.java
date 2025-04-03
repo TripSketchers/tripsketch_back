@@ -1,11 +1,16 @@
 package com.sketchers.tripsketch_back.controller;
 
 import com.sketchers.tripsketch_back.exception.DuplicateException;
+import com.sketchers.tripsketch_back.exception.SendMailException;
 import com.sketchers.tripsketch_back.exception.SigninException;
 import com.sketchers.tripsketch_back.exception.ValidException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @ControllerAdvice
 public class ExceptionControllerAdvice {
@@ -23,5 +28,12 @@ public class ExceptionControllerAdvice {
     @ExceptionHandler(SigninException.class)
     public ResponseEntity<?> signinException(SigninException signinException) {
         return ResponseEntity.badRequest().body(signinException.getErrorMap());
+    }
+
+    @ExceptionHandler(SendMailException.class)
+    public ResponseEntity<?> sendMailException(SendMailException sendMailException) {
+        Map<String, String> message = new HashMap<>();
+        message.put("sendFail", "이메일 전송이 실패했습니다.");
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(message);
     }
 }

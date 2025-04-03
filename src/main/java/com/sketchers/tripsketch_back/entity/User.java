@@ -25,6 +25,7 @@ public class User {
                 .password(password)
                 .oauth2Id(oauth2Id)
                 .provider(provider)
+                .enabled(enabled)
                 .build();
     }
 }
