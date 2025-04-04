@@ -46,13 +46,13 @@ public class AccountController {
         return ResponseEntity.ok(accountService.authenticateMail(token) ? "인증 완료" : "인증 실패");
     }
 
-    @PostMapping("/api/account/check-pw")
+    @PostMapping("/api/account/password/check")
     public ResponseEntity<?> checkPassword(@RequestBody Map<String, String> request) {
         return ResponseEntity.ok(accountService.checkPassword(request.get("password")));
     }
 
     @ValidAop
-    @PutMapping("/api/account/change-pw")
+    @PutMapping("/api/account/password")
     public ResponseEntity<?> changePassword(@Valid @RequestBody PasswordChangeReqDto passwordChangeReqDto) {
         return ResponseEntity.ok(accountService.updatePassword(passwordChangeReqDto));
     }
