@@ -16,7 +16,7 @@ public class SignupReqDto {
 
     @NotBlank(message = "비밀번호를 입력하세요.")
     @Pattern(
-        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d]{4,20}$",
+        regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)[A-Za-z\\d!@#$%^&*()_+\\-=\\[\\]{};':\"\\\\|,.<>\\/?`~]{4,20}$",
         message = "비밀번호는 4~20자, 소문자/대문자/숫자를 모두 포함해야 합니다."
     )
     private String password;
