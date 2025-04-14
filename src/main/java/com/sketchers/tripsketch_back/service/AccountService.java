@@ -115,4 +115,8 @@ public class AccountService {
         List<Trip> trips = accountMapper.findTripsByUserId(userId);
         return new TripRespDto(trips);
     }
+
+    public int deleteTrip(int tripId) {
+        return accountMapper.deleteTrip(tripId);
+    }
 }

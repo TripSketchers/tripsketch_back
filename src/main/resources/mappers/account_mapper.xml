@@ -26,6 +26,12 @@
         where
             user_id = #{userId}
     </delete>
+    <delete id="deleteTrip">
+        delete from
+            trip_tb
+        where
+            trip_id = #{tripId}
+    </delete>
     <select id="findTripsByUserId" resultType="com.sketchers.tripsketch_back.entity.Trip">
         select
         	trip_id,

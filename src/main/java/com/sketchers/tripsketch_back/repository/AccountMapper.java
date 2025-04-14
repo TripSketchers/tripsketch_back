@@ -12,4 +12,5 @@ public interface AccountMapper {
     public int updateEnabledToEmail(String email);
     public int updatePassword(User user);
     public List<Trip> findTripsByUserId(int userId);
+    public int deleteTrip(int tripId);
 }
