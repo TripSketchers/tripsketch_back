@@ -1,6 +1,8 @@
 package com.sketchers.tripsketch_back.service;
 
 import com.sketchers.tripsketch_back.dto.PasswordChangeReqDto;
+import com.sketchers.tripsketch_back.dto.TripRespDto;
+import com.sketchers.tripsketch_back.entity.Trip;
 import com.sketchers.tripsketch_back.entity.User;
 import com.sketchers.tripsketch_back.exception.AuthMailException;
 import com.sketchers.tripsketch_back.exception.SendMailException;
@@ -18,6 +20,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.mail.internet.MimeMessage;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -103,5 +107,12 @@ public class AccountService {
         User newUser = principalUser.getUser();
         newUser.setPassword(passwordEncoder.encode(passwordChangeReqDto.getNewPassword()));
         return accountMapper.updatePassword(newUser);
+    }
+
+    public TripRespDto getTrips() {
+        PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        int userId = principalUser.getUser().getUserId();
+        List<Trip> trips = accountMapper.findTripsByUserId(userId);
+        return new TripRespDto(trips);
     }
 }
