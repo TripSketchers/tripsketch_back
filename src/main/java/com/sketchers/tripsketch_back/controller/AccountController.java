@@ -56,4 +56,14 @@ public class AccountController {
     public ResponseEntity<?> changePassword(@Valid @RequestBody PasswordChangeReqDto passwordChangeReqDto) {
         return ResponseEntity.ok(accountService.updatePassword(passwordChangeReqDto));
     }
+
+    @GetMapping("/api/account/trips")
+    public ResponseEntity<?> getTrips() {
+        return ResponseEntity.ok(accountService.getTrips());
+    }
+
+    @DeleteMapping("/api/account/trip/{tripId}")
+    public ResponseEntity<?> deleteTrip(@PathVariable int tripId) {
+        return ResponseEntity.ok(accountService.deleteTrip(tripId));
+    }
 }
