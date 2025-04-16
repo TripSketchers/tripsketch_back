@@ -3,7 +3,7 @@
       PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.sketchers.tripsketch_back.repository.AlbumMapper">
-    <select id="getAlbum" resultType="com.sketchers.tripsketch_back.entity.Album">
+    <select id="getAlbums" resultType="com.sketchers.tripsketch_back.entity.Album">
         select
             at.album_id,
             at.trip_id,
@@ -19,16 +19,56 @@
     <select id="getPhotos" resultType="com.sketchers.tripsketch_back.entity.Photo" >
         select
             photo_id,
-            album_id,
             photo_url,
             memo
         from
             photo_tb
         where
             album_id = #{albumId}
-
     </select>
-    <select id="getPhotosByFolder">
-
+    <select id="getTripStartDate" resultType="string">
+        select
+            start_date
+        from
+            trip_tb
+        where
+            user_id = #{userId}
+            and trip_id = #{tripId}
+    </select>
+    <select id="getThumbnailPhoto" resultType="com.sketchers.tripsketch_back.entity.Photo" >
+        select
+            photo_id,
+            photo_url,
+            memo
+        from
+            photo_tb
+        where
+            album_id = #{albumId}
+        LIMIT 1
+    </select>
+    <select id="getAlbum" resultType="com.sketchers.tripsketch_back.entity.Album">
+        select
+            at.album_id,
+            at.trip_id,
+            v.date,
+            v.place_name
+        from
+            album_tb at
+            left outer join v_trip_schedule_info v on(v.trip_schedule_id = at.trip_schedule_id)
+        where
+            at.user_id = #{userId}
+            and at.trip_id = #{tripId}
+            and at.album_id = #{albumId}
+    </select>
+    <select id="getPhotosByFolder" resultType="com.sketchers.tripsketch_back.entity.Photo" >
+        select
+        	pt.photo_id,
+        	pt.photo_url,
+        	pt.memo
+        from
+        	album_tb at
+            left outer join photo_tb pt on(pt.album_id = at.album_id)
+        where
+            at.album_id = #{albumId}
     </select>
 </mapper>

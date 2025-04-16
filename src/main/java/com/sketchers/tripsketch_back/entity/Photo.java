@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @Data
 public class Photo {
     private int photoId;
-    private int albumId;
     private String photoUrl;
     private String memo;
 }

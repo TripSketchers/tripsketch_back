@@ -21,18 +21,18 @@ public class AlbumController {
         return ResponseEntity.ok(albumService.getPhotosAll(userId, tripId));
     }
 
-//    // 여행 앨범의 사진 목록 조회(폴더 목록 조회)
-//    @GetMapping("/api/trips/{tripId}/album/folders")
-//    public ResponseEntity<?> getAlbumFolders(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId) {
-//        int userId = principalUser.getUser().getUserId();
-//        return ResponseEntity.ok(albumService.getAlbumFolders(userId, tripId));
-//    }
-//
-//    // 여행 앨범의 사진 목록 조회(폴더별 사진 조회)
-//    @GetMapping("/api/trips/{tripId}/albums/{albumId}")
-//    public ResponseEntity<?> getPhotosByFolder(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId,  @PathVariable int albumId) {
-//        int userId = principalUser.getUser().getUserId();
-//        return ResponseEntity.ok(albumService.getPhotosByFolder(userId, tripId, albumId));
-//    }
+    // 여행 앨범의 사진 목록 조회(폴더 목록 조회)
+    @GetMapping("/api/trips/{tripId}/album/folders")
+    public ResponseEntity<?> getAlbumFolders(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId) {
+        int userId = principalUser.getUser().getUserId();
+        return ResponseEntity.ok(albumService.getAlbumFolders(userId, tripId));
+    }
+
+    // 여행 앨범의 사진 목록 조회(폴더별 사진 조회)
+    @GetMapping("/api/trips/{tripId}/albums/{albumId}")
+    public ResponseEntity<?> getPhotosByFolder(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId,  @PathVariable int albumId) {
+        int userId = principalUser.getUser().getUserId();
+        return ResponseEntity.ok(albumService.getPhotosByFolder(userId, tripId, albumId));
+    }
 
 }

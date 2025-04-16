@@ -7,8 +7,10 @@ import java.util.List;
 
 @Mapper
 public interface AlbumMapper {
-    public List<Album> getAlbum(int userId, int tripId);
-    public List<Photo> getPhotos(int tripId);
-    //    public Album getAlbumFolders(int userId, int tripId);
-    //    public Album getPhotosByFolder(int userId, int tripId, int albumId);
+    public List<Album> getAlbums(int userId, int tripId);
+    public List<Photo> getPhotos(int albumId);
+    public String getTripStartDate(int userId, int tripId);
+    public List<Photo> getThumbnailPhoto(int tripId);
+    public Album getAlbum(int userId, int tripId, int albumId);
+    public List<Photo> getPhotosByFolder(int albumId);
 }
