@@ -3,6 +3,13 @@
       PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
       "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.sketchers.tripsketch_back.repository.AlbumMapper">
+    <resultMap id="TripScheduleResultMap" type="com.sketchers.tripsketch_back.entity.TripSchedule">
+        <result property="date" column="date"/>
+        <collection property="places" ofType="com.sketchers.tripsketch_back.entity.TripSchedulePlace">
+            <result property="tripScheduleId" column="trip_schedule_id"/>
+            <result property="place" column="place_name"/>
+        </collection>
+    </resultMap>
     <select id="getAlbums" resultType="com.sketchers.tripsketch_back.entity.Album">
         select
             at.album_id,
@@ -71,4 +78,58 @@
         where
             at.album_id = #{albumId}
     </select>
+    <select id="getTripScheduleDates" resultType="string" >
+        select
+            DISTINCT tst.date
+        from
+            trip_tb tt
+            left outer join trip_schedule_tb tst on(tst.trip_id = tt.trip_id)
+        where
+            tt.user_id = #{userId} and
+            tst.trip_id = #{tripId}
+    </select>
+    <select id="getTripSchedules" resultMap="TripScheduleResultMap">
+        select
+            v.date,
+        	v.trip_schedule_id,
+        	v.place_name
+        from
+            trip_tb tt
+            left outer join trip_schedule_tb tst on(tst.trip_id = tt.trip_id)
+        	left outer join v_trip_schedule_info v on(v.trip_schedule_id = tst.trip_schedule_id)
+        where
+            tt.user_id = #{userId} and
+        	tst.trip_id = #{tripId}
+        group by v.date, v.trip_schedule_id
+    </select>
+    <select id="getAlbumId" resultType="int">
+        select
+            album_id
+        from
+            album_tb
+        where
+            user_id = #{userId} and
+            trip_id = #{tripId} and
+            trip_schedule_id = #{tripScheduleId}
+    </select>
+    <insert id="createTripAlbum" >
+        INSERT INTO album_tb (user_id, trip_id, trip_schedule_id)
+        VALUES (#{userId}, #{tripId}, #{tripScheduleId});
+        <selectKey resultType="int" keyProperty="albumId" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+    <insert id="insertPhoto">
+        INSERT INTO photo_tb (album_id, photo_url, memo)
+        VALUES (#{albumId}, #{photoUrl}, #{memo})
+    </insert>
+    <update id="editPhotoMemo" >
+        update
+            photo_tb
+        set
+            memo = #{memo}
+        where
+            photo_id = #{photoId}
+    </update>
+
 </mapper>

@@ -1,5 +1,6 @@
 package com.sketchers.tripsketch_back.repository;
 
+import com.sketchers.tripsketch_back.dto.AlbumUploadReqDto;
 import com.sketchers.tripsketch_back.entity.*;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -13,4 +14,10 @@ public interface AlbumMapper {
     public List<Photo> getThumbnailPhoto(int tripId);
     public Album getAlbum(int userId, int tripId, int albumId);
     public List<Photo> getPhotosByFolder(int albumId);
+//    public List<String> getTripScheduleDates(int userId, int tripId);
+    public List<TripSchedule> getTripSchedules(int userId, int tripId);
+    public int getAlbumId(int userId, int tripId, int tripScheduleId);
+    public int createTripAlbum(int userId, int tripId, int tripScheduleId);
+    public int insertPhoto(int albumId, String photoUrl, String memo);
+    public boolean editPhotoMemo(int photoId, String memo);
 }
