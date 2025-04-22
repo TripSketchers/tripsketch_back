@@ -26,4 +26,34 @@
         where
             user_id = #{userId}
     </delete>
+    <delete id="deleteTrip">
+        delete from
+            trip_tb
+        where
+            trip_id = #{tripId}
+    </delete>
+    <select id="findTripsByUserId" resultType="com.sketchers.tripsketch_back.entity.Trip">
+        select
+        	trip_id,
+        	user_id,
+        	title,
+        	start_date,
+        	end_date,
+        	ko_name as tripDestinationKoName
+        from
+        	trip_tb tt
+        	left outer join trip_destination_tb tdt on(tdt.trip_destination_id = tt.trip_destination_id)
+        where
+            user_id = #{userId}
+        ORDER BY
+            CASE WHEN start_date >= NOW() THEN 0 ELSE 1 END,
+            CASE WHEN start_date >= NOW()
+                THEN start_date
+                ELSE NULL  -- ASC 정렬이라 우선순위 없음
+            END ASC,
+            CASE WHEN start_date &lt; NOW()
+                THEN start_date
+                ELSE NULL
+            END DESC
+    </select>
 </mapper>
