@@ -34,19 +34,6 @@ public class PlaceService {
                 .exchange(builder.toUri(), HttpMethod.GET, new HttpEntity<>(headers), PlaceRespDto.address.class)
                 .getBody();
 
-        if (response != null && response.getResults() != null) {
-            for (PlaceRespDto.addressInfo place : response.getResults()) {
-                if (place.getPhotos() != null && !place.getPhotos().isEmpty()) {
-                    String ref = place.getPhotos().get(0).getPhoto_reference();
-                    String photoUrl = "https://maps.googleapis.com/maps/api/place/photo"
-                            + "?maxwidth=400"
-                            + "&photo_reference=" + ref
-                            + "&key=" + apiKey;
-                    place.setPhotoUrl(photoUrl);
-                }
-            }
-        }
-
         return response;
     }
 }

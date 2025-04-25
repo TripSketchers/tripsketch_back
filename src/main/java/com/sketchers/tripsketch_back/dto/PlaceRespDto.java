@@ -25,7 +25,6 @@ public class PlaceRespDto {
         private String name;
         private Double rating;
         private List<photoInfo> photos;
-        private String photoUrl;
     }
 
     @Data
