@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+      PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+      "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sketchers.tripsketch_back.repository.AlbumMapper">
+    <select id="getAlbums" resultType="com.sketchers.tripsketch_back.entity.Album">
+        select
+            at.album_id,
+            v.date,
+            v.place_name,
+            (   SELECT p.photo_url
+                FROM photo_tb p
+                WHERE p.album_id = at.album_id
+                ORDER BY p.photo_id ASC
+                LIMIT 1
+            ) AS photo_url
+        from
+            album_tb at
+            left outer join v_trip_schedule_info v on(v.trip_schedule_id = at.trip_schedule_id)
+            left outer join trip_schedule_tb tst on(tst.trip_schedule_id = at.trip_schedule_id)
+        where
+            at.user_id = #{userId}
+            and at.trip_id = #{tripId}
+        order by v.date, tst.position
+    </select>
+    <select id="getPhotosByAlbumId" resultType="com.sketchers.tripsketch_back.entity.Photo" >
+        select
+            photo_id,
+            photo_url,
+            memo
+        from
+            photo_tb
+        where
+            album_id = #{albumId}
+        ORDER BY
+            photo_id ASC
+    </select>
+    <select id="getTripStartDate" resultType="string">
+        select
+            start_date
+        from
+            trip_tb
+        where
+            user_id = #{userId}
+            and trip_id = #{tripId}
+    </select>
+    <select id="getTripSchedules" resultType="com.sketchers.tripsketch_back.entity.TripSchedulePlaceView">
+        select
+            v.date,
+        	v.trip_schedule_id,
+        	v.place_name
+        from
+            trip_tb tt
+            left outer join trip_schedule_tb tst on(tst.trip_id = tt.trip_id)
+        	left outer join v_trip_schedule_info v on(v.trip_schedule_id = tst.trip_schedule_id)
+        where
+            tt.user_id = #{userId} and
+        	tst.trip_id = #{tripId}
+        order by v.date, tst.position
+    </select>
+    <select id="getAlbumId" resultType="int">
+        SELECT IFNULL((
+            SELECT album_id
+            FROM album_tb
+            WHERE user_id = #{userId}
+              AND trip_id = #{tripId}
+              AND trip_schedule_id = #{tripScheduleId}
+            LIMIT 1
+        ), 0)
+    </select>
+    <insert id="createTripAlbum" useGeneratedKeys="true" keyProperty="albumId">
+        INSERT INTO album_tb (user_id, trip_id, trip_schedule_id)
+        VALUES (#{userId}, #{tripId}, #{tripScheduleId})
+    </insert>
+    <insert id="insertPhoto">
+        INSERT INTO photo_tb (album_id, photo_url, memo)
+        VALUES (#{albumId}, #{photoUrl}, #{memo})
+    </insert>
+    <update id="editPhotoMemo" >
+        update
+            photo_tb
+        set
+            memo = #{memo}
+        where
+            photo_id = #{photoId}
+    </update>
+    <delete id="deleteAlbum" >
+        delete from album_tb
+        where album_id = #{albumId};
+    </delete>
+    <delete id="deletePhoto" >
+        delete from photo_tb
+        where photo_id = #{photoId};
+    </delete>
+
+</mapper>
