@@ -10,41 +10,39 @@ public class PlaceRespDto {
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class address {
-        private List<addressInfo> results;
-        private String next_page_token;
-        private String status;
+    public static class textSearch {
+        private List<textSearchInfo> places; // ✅ TextSearch 결과
+        private String nextPageToken;         // ✅ 다음 페이지 토큰
     }
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class addressInfo {
-        private String place_id;
-        private String formatted_address;
-        private geometryInfo geometry;
-        private String name;
-        private Double rating;
-        private List<photoInfo> photos;
+    public static class textSearchInfo {
+        private String id;                     // 장소 ID (places/xxxx)
+        private displayName displayName;       // 장소 이름
+        private String formattedAddress;       // 주소
+        private locationInfo location;         // 위도, 경도
+        private List<photoInfo> photos;         // 사진 정보
+        private List<String> types;             // 타입 (e.g., restaurant, cafe)
+        private Double rating;                  // 평점
     }
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static class geometryInfo {
-        private locationInfo location;
+    public static class displayName {
+        private String text;                    // 장소명 텍스트
     }
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class locationInfo {
-        private double lat;
-        private double lng;
+        private Double latitude;                // 위도
+        private Double longitude;               // 경도
     }
 
     @Data
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class photoInfo {
-        private String photo_reference;
-        private int width;
-        private int height;
+        private String name;                    // 사진 이름 (photoReference 역할)
     }
 }

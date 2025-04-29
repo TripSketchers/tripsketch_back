@@ -15,10 +15,9 @@ public class PhotoService {
     @Value("${google.places.api.key}")
     private String apiKey;
 
-    public byte[] fetchPlacePhoto(String photoReference) {
-        String url = UriComponentsBuilder.fromHttpUrl("https://maps.googleapis.com/maps/api/place/photo")
-                .queryParam("maxwidth", 600)
-                .queryParam("photo_reference", photoReference)
+    public byte[] fetchPlacePhoto(String photoName) {
+        String url = UriComponentsBuilder.fromHttpUrl("https://places.googleapis.com/v1/" + photoName + "/media")
+                .queryParam("maxWidthPx", 600) // maxWidthPx로 바뀜
                 .queryParam("key", apiKey)
                 .toUriString();
 

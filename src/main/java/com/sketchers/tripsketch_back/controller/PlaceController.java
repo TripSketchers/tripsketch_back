@@ -4,11 +4,7 @@ import com.sketchers.tripsketch_back.dto.PlaceRespDto;
 import com.sketchers.tripsketch_back.service.PlaceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.*;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,7 +13,12 @@ public class PlaceController {
     private final PlaceService placeService;
 
     @GetMapping("/api/places")
-    public ResponseEntity<?> getAllPlaces(@RequestParam String destination, @RequestParam String type, @RequestParam String pagetoken) {
-        return ResponseEntity.ok(placeService.getPlacesByType(destination, type, pagetoken));
+    public ResponseEntity<?> getPlacesByTextSearch(
+        @RequestParam(required = false) String type,
+        @RequestParam(required = false) String keyword,
+        @RequestParam(required = false) String pagetoken
+    ) {
+        PlaceRespDto.textSearch result = placeService.getPlacesByTextSearch(type, keyword, pagetoken);
+        return ResponseEntity.ok(result);
     }
 }
