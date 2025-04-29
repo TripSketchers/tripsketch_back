@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class TripSchedulePlace {
+public class TripSchedulePlaceView {
+    private String date;
     private int tripScheduleId;
-    private String place;
+    private String placeName;
 }

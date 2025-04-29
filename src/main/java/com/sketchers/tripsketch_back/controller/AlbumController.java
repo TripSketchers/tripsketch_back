@@ -14,25 +14,17 @@ import org.springframework.web.bind.annotation.*;
 public class AlbumController {
     private final AlbumService albumService;
 
-    // 여행 앨범의 사진 목록 조회(전체 사진 조회)
-    @GetMapping("/api/trips/{tripId}/album/photos")
-    public ResponseEntity<?> getPhotosAll(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId) {
+    // 여행 앨범 조회
+    @GetMapping("/api/trips/{tripId}/albums")
+    public ResponseEntity<?> getAlbums(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId) {
         int userId = principalUser.getUser().getUserId();
-        return ResponseEntity.ok(albumService.getPhotosAll(userId, tripId));
+        return ResponseEntity.ok(albumService.getAlbums(userId, tripId));
     }
 
-    // 여행 앨범의 사진 목록 조회(폴더 목록 조회)
-    @GetMapping("/api/trips/{tripId}/album/folders")
-    public ResponseEntity<?> getAlbumFolders(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId) {
-        int userId = principalUser.getUser().getUserId();
-        return ResponseEntity.ok(albumService.getAlbumFolders(userId, tripId));
-    }
-
-    // 여행 앨범의 사진 목록 조회(폴더별 사진 조회)
-    @GetMapping("/api/trips/{tripId}/albums/{albumId}")
-    public ResponseEntity<?> getPhotosByFolder(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId,  @PathVariable int albumId) {
-        int userId = principalUser.getUser().getUserId();
-        return ResponseEntity.ok(albumService.getPhotosByFolder(userId, tripId, albumId));
+    // 여행 앨범의 사진 목록 조회
+    @GetMapping("/api/trips/album/{albumId}/photos")
+    public ResponseEntity<?> getPhotosByAlbumId(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int albumId) {
+        return ResponseEntity.ok(albumService.getPhotosByAlbumId(albumId));
     }
 
     // 업로드 페이지 - 여행 일정 불러오기
@@ -57,7 +49,17 @@ public class AlbumController {
 
     @PutMapping("/api/trips/{tripId}/album/{photoId}")
     public ResponseEntity<?> editPhotoMemo(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId,  @PathVariable int photoId, @RequestBody String memo){
-        return ResponseEntity.ok(albumService.editPhotoMemo(tripId, memo));
+        return ResponseEntity.ok(albumService.editPhotoMemo(photoId, memo));
+    }
+
+    @DeleteMapping("/api/trips/{tripId}/albums/{albumId}")
+    public ResponseEntity<?> deleteAlbum(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId, @PathVariable int albumId){
+        return ResponseEntity.ok(albumService.deleteAlbum(tripId, albumId));
+    }
+
+    @DeleteMapping("/api/trips/{tripId}/album/photos/{photoId}")
+    public ResponseEntity<?> deletePhoto(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId, @PathVariable int photoId){
+        return ResponseEntity.ok(albumService.deletePhoto(tripId, photoId));
     }
 
 }

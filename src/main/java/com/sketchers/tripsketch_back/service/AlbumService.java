@@ -1,9 +1,6 @@
 package com.sketchers.tripsketch_back.service;
 
-import com.sketchers.tripsketch_back.dto.AlbumListRespDto;
-import com.sketchers.tripsketch_back.dto.AlbumRespDto;
-import com.sketchers.tripsketch_back.dto.AlbumUploadReqDto;
-import com.sketchers.tripsketch_back.dto.TripScheduleRespDto;
+import com.sketchers.tripsketch_back.dto.*;
 import com.sketchers.tripsketch_back.entity.Album;
 import com.sketchers.tripsketch_back.entity.Photo;
 import com.sketchers.tripsketch_back.repository.AlbumMapper;
@@ -11,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -19,62 +15,27 @@ import java.util.List;
 public class AlbumService {
     private final AlbumMapper albumMapper;
 
-    public AlbumListRespDto getPhotosAll(int userId, int tripId) {
+    public AlbumListRespDto getAlbums(int userId, int tripId) {
         List<Album> albums = albumMapper.getAlbums(userId, tripId);
-        List<AlbumRespDto> result = new ArrayList<>();
-
-        for (Album album : albums) {
-            List<Photo> photos = albumMapper.getPhotos(album.getAlbumId());
-            AlbumRespDto albumRespDto = AlbumRespDto.builder()
-                        .album(album)
-                        .photos(photos)
-                        .build();
-
-            result.add(albumRespDto);
-        }
         String startDate = albumMapper.getTripStartDate(userId, tripId);  // trip_tb에서 가져오기
 
         AlbumListRespDto albumListRespDto = AlbumListRespDto.builder()
                 .startDate(startDate)
-                .albums(result)
+                .albums(albums)
                 .build();
         return albumListRespDto;
     }
 
-    public AlbumListRespDto getAlbumFolders(int userId, int tripId) {
-        List<Album> albums = albumMapper.getAlbums(userId, tripId);
-        List<AlbumRespDto> result = new ArrayList<>();
+    public PhotoRespDto getPhotosByAlbumId(int albumId) {
+        List<Photo> photos = albumMapper.getPhotosByAlbumId(albumId);
 
-        for (Album album : albums) {
-            List<Photo> thumbnailPhoto = albumMapper.getThumbnailPhoto(album.getAlbumId());
-            AlbumRespDto albumRespDto = AlbumRespDto.builder()
-                    .album(album)
-                    .photos(thumbnailPhoto)
-                    .build();
-            result.add(albumRespDto);
-        }
-        String startDate = albumMapper.getTripStartDate(userId, tripId);
-        return new AlbumListRespDto(startDate, result);
-    }
-
-    public AlbumListRespDto getPhotosByFolder(int userId, int tripId, int albumId) {
-        Album album = albumMapper.getAlbum(userId, tripId, albumId);
-        List<Photo> photos = albumMapper.getPhotosByFolder(albumId);
-        List<AlbumRespDto> result = new ArrayList<>();
-
-        AlbumRespDto albumRespDto = AlbumRespDto.builder()
-                            .album(album)
-                            .photos(photos)
-                            .build();
-        result.add(albumRespDto);
-        String startDate = albumMapper.getTripStartDate(userId, tripId);
-
-        return new AlbumListRespDto(startDate, result);
+        return  PhotoRespDto.builder()
+                .photos(photos)
+                .build();
     }
 
     public TripScheduleRespDto getTripSchedules(int userId, int tripId) {
-        String startDate = albumMapper.getTripStartDate(userId, tripId);
-        return new TripScheduleRespDto(startDate, albumMapper.getTripSchedules(userId, tripId));
+        return new TripScheduleRespDto(albumMapper.getTripSchedules(userId, tripId));
     }
 
     @Transactional //실패 시 롤백
@@ -86,24 +47,29 @@ public class AlbumService {
 
             //2. 앨범이 없으면 새로 생성
             if(albumId == 0) {
-                albumId = albumMapper.createTripAlbum(userId, tripId, tripScheduleId);
-            }
-            //3. 앨범에 사진 저장
-            int successCount = 0;
-            for (AlbumUploadReqDto.PhotoDto photoDto : albumUploadReqDto.getPhotos()) {
-                int result = albumMapper.insertPhoto(albumId, photoDto.getPhotoUrl(), photoDto.getMemo());
-                if (result > 0) {
-                    successCount++;
-                } else {
-                    throw new RuntimeException("사진 저장 실패"); // 실패 발생 시 강제 롤백
+                AlbumCreateReqDto request = AlbumCreateReqDto.builder()
+                        .userId(userId)
+                        .tripId(tripId)
+                        .tripScheduleId(tripScheduleId)
+                        .build();
+                albumMapper.createTripAlbum(request);
+
+                albumId = request.getAlbumId();  // 여기서 새로 생성된 albumId 가져옴
+                System.out.println("새로 생성된 albumId: " + albumId);
+
+                if (albumId == 0) {
+                    throw new RuntimeException("앨범 생성 실패");
                 }
             }
-            //4. 저장된 사진 수와 요청한 사진 수가 같으면 성공
-            if (successCount == albumUploadReqDto.getPhotos().size()) {
-                return true;
-            } else {
-                throw new RuntimeException("사진 일부 저장 실패");
+
+            //3. 앨범에 사진 저장
+            for (AlbumUploadReqDto.PhotoDto photoDto : albumUploadReqDto.getPhotos()) {
+                int result = albumMapper.insertPhoto(albumId, photoDto.getPhotoUrl(), photoDto.getMemo());
+                if (result <= 0) {
+                    throw new RuntimeException("사진 저장 실패");
+                }
             }
+            return true;
         } catch (Exception e) {
             // 여기서 로그를 남기거나, custom 예외로 변환 가능
             throw new RuntimeException("앨범 업로드 중 오류 발생: " + e.getMessage(), e);
@@ -112,5 +78,11 @@ public class AlbumService {
 
     public boolean editPhotoMemo(int photoId, String memo) {
         return albumMapper.editPhotoMemo(photoId, memo);
+    }
+    public boolean deleteAlbum(int tripId, int albumId) {
+        return albumMapper.deleteAlbum(albumId);
+    }
+    public boolean deletePhoto(int tripId, int photoId) {
+        return albumMapper.deletePhoto(photoId);
     }
 }

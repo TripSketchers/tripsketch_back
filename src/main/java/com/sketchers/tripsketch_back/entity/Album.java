@@ -1,6 +1,5 @@
 package com.sketchers.tripsketch_back.entity;
 
-import com.sketchers.tripsketch_back.dto.AlbumRespDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +9,7 @@ import lombok.Data;
 @Data
 public class Album {
     private int albumId;
-    private int tripId;
     private String date;
-    private String place;
+    private String placeName;
+    private String photoUrl;
 }
