@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sketchers.tripsketch_back.repository.TripMapper">
+    <insert id="insertTrip" useGeneratedKeys="true" keyProperty="tripId">
+        insert into trip_tb
+        values(
+            0,
+            #{userId},
+            #{title},
+            #{startDate},
+            #{endDate},
+            #{tripDestinationId},
+            #{transportType}
+        )
+    </insert>
+</mapper>

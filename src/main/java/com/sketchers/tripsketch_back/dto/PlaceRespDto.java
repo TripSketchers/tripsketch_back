@@ -45,4 +45,21 @@ public class PlaceRespDto {
     public static class photoInfo {
         private String name;                    // 사진 이름 (photoReference 역할)
     }
+
+    /*
+    public StoredPlaceReqDto toStoredPlaceReqDto(PlaceRespDto.textSearchInfo info, int stayTime) {
+        return StoredPlaceReqDto.builder()
+            .googlePlaceId(info.getId())
+            .name(info.getDisplayName().getText())
+            .address(info.getFormattedAddress())
+            .latitude(info.getLocation().getLatitude())
+            .longitude(info.getLocation().getLongitude())
+            .photoReference(info.getPhotos() != null && !info.getPhotos().isEmpty()
+                ? info.getPhotos().get(0).getName() : null)
+            .rating(info.getRating() != null ? info.getRating() : 0.0)
+            .category(extractCategory(info.getTypes()))
+            .stayTime(stayTime)
+            .build();
+    }
+    */
 }
