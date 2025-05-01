@@ -1,4 +1,4 @@
-package com.sketchers.tripsketch_back.dto;
+package com.sketchers.tripsketch_back.dto.trip.create;
 
 import com.sketchers.tripsketch_back.entity.Trip;
 import lombok.AllArgsConstructor;

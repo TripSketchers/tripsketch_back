@@ -1,6 +1,7 @@
 package com.sketchers.tripsketch_back.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.sketchers.tripsketch_back.dto.trip.create.PlaceInfoDto;
 import lombok.Data;
 
 import java.util.List;
@@ -47,20 +48,18 @@ public class PlaceRespDto {
         private String name;                    // 사진 이름 (photoReference 역할)
     }
 
-    /*
-    public StoredPlaceReqDto toStoredPlaceReqDto(PlaceRespDto.textSearchInfo info, int stayTime) {
-        return StoredPlaceReqDto.builder()
-            .googlePlaceId(info.getId())
-            .name(info.getDisplayName().getText())
-            .address(info.getFormattedAddress())
-            .latitude(info.getLocation().getLatitude())
-            .longitude(info.getLocation().getLongitude())
-            .photoReference(info.getPhotos() != null && !info.getPhotos().isEmpty()
-                ? info.getPhotos().get(0).getName() : null)
-            .rating(info.getRating() != null ? info.getRating() : 0.0)
-            .category(extractCategory(info.getTypes()))
-            .stayTime(stayTime)
-            .build();
+    public PlaceInfoDto convertToPlaceInfoDto(PlaceRespDto.textSearchInfo info) {
+        return PlaceInfoDto.builder()
+                .googlePlaceId(info.getId())
+                .name(info.getDisplayName().getText())
+                .address(info.getFormattedAddress())
+                .latitude(info.getLocation().getLatitude())
+                .longitude(info.getLocation().getLongitude())
+                .photoReference(info.getPhotos() != null && !info.getPhotos().isEmpty()
+                        ? info.getPhotos().get(0).getName() : null)
+                .rating(info.getRating())
+                .category(info.getCategory() != null ? info.getCategory() : "기타")
+                .build();
     }
-    */
+
 }
