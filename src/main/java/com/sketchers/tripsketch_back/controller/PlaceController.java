@@ -23,8 +23,7 @@ public class PlaceController {
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) String pagetoken
     ) {
-        PlaceRespDto.textSearch result = placeService.getPlacesByTextSearch(type, keyword, pagetoken);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(placeService.getPlacesByTextSearch(type, keyword, pagetoken));
     }
 
 }

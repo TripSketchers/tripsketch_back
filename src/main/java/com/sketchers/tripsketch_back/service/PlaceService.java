@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -67,10 +68,29 @@ public class PlaceService {
                     PlaceRespDto.textSearch.class
             );
 
-            return response.getBody();
+            PlaceRespDto.textSearch result = response.getBody();
+
+            // ✅ category 주입
+            if (result != null && result.getPlaces() != null) {
+                result.getPlaces().forEach(place -> {
+                    String category = mapTypesToCategory(place.getTypes());
+                    place.setCategory(category);
+                });
+            }
+
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static String mapTypesToCategory(List<String> types) {
+        if (types == null || types.isEmpty()) return "기타";
+        if (types.contains("lodging")) return "숙소";
+        if (types.contains("cafe")) return "카페";
+        if (types.contains("restaurant")) return "맛집";
+        if (types.contains("tourist_attraction")) return "명소";
+        return "기타";
     }
 }
