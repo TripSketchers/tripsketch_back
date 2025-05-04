@@ -47,19 +47,4 @@ public class PlaceRespDto {
     public static class photoInfo {
         private String name;                    // 사진 이름 (photoReference 역할)
     }
-
-    public PlaceInfoDto convertToPlaceInfoDto(PlaceRespDto.textSearchInfo info) {
-        return PlaceInfoDto.builder()
-                .googlePlaceId(info.getId())
-                .name(info.getDisplayName().getText())
-                .address(info.getFormattedAddress())
-                .latitude(info.getLocation().getLatitude())
-                .longitude(info.getLocation().getLongitude())
-                .photoReference(info.getPhotos() != null && !info.getPhotos().isEmpty()
-                        ? info.getPhotos().get(0).getName() : null)
-                .rating(info.getRating())
-                .category(info.getCategory() != null ? info.getCategory() : "기타")
-                .build();
-    }
-
 }
