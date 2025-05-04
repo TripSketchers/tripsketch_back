@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sketchers.tripsketch_back.repository.TripMapper">
+    <insert id="insertTrip" useGeneratedKeys="true" keyProperty="tripId">
+        insert into trip_tb
+        values(
+            0,
+            #{userId},
+            #{title},
+            #{startDate},
+            #{endDate},
+            #{tripDestinationId},
+            #{transportType}
+        )
+    </insert>
+
+    <select id="findByGooglePlaceId" resultType="com.sketchers.tripsketch_back.entity.Place">
+        SELECT *
+        FROM place_tb
+        WHERE google_place_id = #{googlePlaceId}
+    </select>
+
+    <insert id="insertPlace" useGeneratedKeys="true" keyProperty="placeId">
+        INSERT INTO place_tb
+        VALUES (
+            0,
+            #{googlePlaceId},
+            #{name},
+            #{address},
+            #{latitude},
+            #{longitude},
+            #{category},
+            #{rating},
+            #{photoReference}
+        )
+    </insert>
+
+    <insert id="insertPlaceStore" useGeneratedKeys="true" keyProperty="placeStoreId">
+        INSERT INTO place_store_tb
+        VALUES (
+            0,
+            #{placeId},
+            #{tripId},
+            #{stayTime}
+        )
+    </insert>
+
+    <insert id="insertAccommodation" useGeneratedKeys="true" keyProperty="accommodationId">
+        INSERT INTO accommodation_tb
+        VALUES (
+            0,
+            #{tripId},
+            #{placeId},
+            #{checkInDate},
+            #{checkOutDate}
+        )
+    </insert>
+</mapper>

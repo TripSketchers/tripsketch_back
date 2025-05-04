@@ -1,6 +1,7 @@
 package com.sketchers.tripsketch_back.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.sketchers.tripsketch_back.dto.trip.create.PlaceInfoDto;
 import lombok.Data;
 
 import java.util.List;
@@ -25,6 +26,7 @@ public class PlaceRespDto {
         private List<photoInfo> photos;         // 사진 정보
         private List<String> types;             // 타입 (e.g., restaurant, cafe)
         private Double rating;                  // 평점
+        private String category;                // 직접 추가
     }
 
     @Data
