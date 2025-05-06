@@ -92,5 +92,21 @@
         delete from photo_tb
         where photo_id = #{photoId};
     </delete>
-
+    <delete id="deleteSelectedPhotos">
+        delete from photo_tb
+        where photo_id IN
+        <foreach item="photoId" collection="checkedPhoto" open="(" separator="," close=")">
+            #{photoId}
+        </foreach>
+    </delete>
+    <select id="findAlbumId" resultType="int">
+        select album_id
+        from photo_tb
+        where photo_id = #{photoId};
+    </select>
+    <select id="countPhotos" resultType="int">
+        select count(*)
+        from photo_tb
+        where album_id = #{albumId};
+    </select>
 </mapper>

@@ -75,14 +75,32 @@ public class AlbumService {
             throw new RuntimeException("앨범 업로드 중 오류 발생: " + e.getMessage(), e);
         }
     }
-
     public boolean editPhotoMemo(int photoId, String memo) {
         return albumMapper.editPhotoMemo(photoId, memo);
     }
-    public boolean deleteAlbum(int tripId, int albumId) {
+    public boolean deleteAlbum(int albumId) {
         return albumMapper.deleteAlbum(albumId);
     }
+
+    @Transactional
     public boolean deletePhoto(int tripId, int photoId) {
-        return albumMapper.deletePhoto(photoId);
+        // 1. 앨범 ID 조회 (삭제 전 album_id 확보)
+        int albumId = albumMapper.findAlbumId(photoId);
+
+        // 2. 사진 삭제
+        albumMapper.deletePhoto(photoId);
+
+        // 3. 앨범에 사진이 더 없는 경우 -> 앨범도 삭제
+        int remainingCount = albumMapper.countPhotos(albumId);
+        if (remainingCount == 0) {
+            albumMapper.deleteAlbum(albumId);
+        }
+        return true;
+    }
+
+    @Transactional
+    public boolean deleteSelectedPhotos(List<Integer> checkedPhoto) {
+
+        return albumMapper.deleteSelectedPhotos(checkedPhoto) > 0;
     }
 }

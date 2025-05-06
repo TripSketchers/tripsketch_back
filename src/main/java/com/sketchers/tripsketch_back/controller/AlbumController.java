@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 public class AlbumController {
@@ -34,6 +36,7 @@ public class AlbumController {
         return ResponseEntity.ok(albumService.getTripSchedules(userId,tripId));
     }
 
+    // 업로드 페이지 - 여행 앨범 생성 및 사진 업로드
     @PostMapping("/api/trips/{tripId}/album")
     public ResponseEntity<?> createTripAlbum(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId, @RequestBody AlbumUploadReqDto albumUploadReqDto){
         int userId = principalUser.getUser().getUserId();
@@ -47,19 +50,28 @@ public class AlbumController {
         }
     }
 
+    // 사진 디테일 모달 - 특정 사진 정보 수정(메모)
     @PutMapping("/api/trips/{tripId}/album/{photoId}")
     public ResponseEntity<?> editPhotoMemo(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId,  @PathVariable int photoId, @RequestBody String memo){
         return ResponseEntity.ok(albumService.editPhotoMemo(photoId, memo));
     }
 
+    // 개별 앨범 삭제
     @DeleteMapping("/api/trips/{tripId}/albums/{albumId}")
     public ResponseEntity<?> deleteAlbum(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId, @PathVariable int albumId){
-        return ResponseEntity.ok(albumService.deleteAlbum(tripId, albumId));
+        return ResponseEntity.ok(albumService.deleteAlbum(albumId));
     }
 
+    // 개별 사진 삭제
     @DeleteMapping("/api/trips/{tripId}/album/photos/{photoId}")
     public ResponseEntity<?> deletePhoto(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId, @PathVariable int photoId){
         return ResponseEntity.ok(albumService.deletePhoto(tripId, photoId));
+    }
+
+    // 선택한 사진 여러 개 삭제
+    @DeleteMapping("/api/trips/{tripId}/album/photos")
+    public ResponseEntity<?> deleteSelectedPhotos(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId, @RequestBody List<Integer> data){
+        return ResponseEntity.ok(albumService.deleteSelectedPhotos(data));
     }
 
 }
