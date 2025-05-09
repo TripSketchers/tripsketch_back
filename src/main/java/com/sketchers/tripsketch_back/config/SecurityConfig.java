@@ -14,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @EnableWebSecurity
@@ -32,7 +33,7 @@ public class SecurityConfig {
             .and()
             .csrf().disable()
             .authorizeHttpRequests()
-            .antMatchers("/api/auth/**", "/api/account/auth/email")
+            .antMatchers("/api/auth/**", "/api/account/auth/email", "api/photo/**")
             .permitAll()
             .anyRequest()
             .authenticated()
@@ -53,5 +54,10 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
     }
 }

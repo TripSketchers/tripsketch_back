@@ -7,17 +7,14 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
-@Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
-public class Trip {
+@Builder
+public class Accommodation {
+    private int accommodationId;
     private int tripId;
-    private int userId;
-    private String title;
-    private Date startDate;
-    private Date endDate;
-    private int tripDestinationId;
-    private int transportType;
-    private String tripDestinationKoName;
+    private int placeId;
+    private Date checkInDate;
+    private Date checkOutDate;
 }
