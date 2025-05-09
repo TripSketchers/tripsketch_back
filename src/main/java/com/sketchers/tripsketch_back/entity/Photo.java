@@ -1,5 +1,6 @@
 package com.sketchers.tripsketch_back.entity;
 
+import com.sketchers.tripsketch_back.dto.PhotoRespDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,4 +14,12 @@ public class Photo {
     private int photoId;
     private String photoUrl;
     private String memo;
+
+    public PhotoRespDto toPhotoDto() {
+        return PhotoRespDto.builder()
+                .photoId(photoId)
+                .photoUrl(photoUrl)
+                .memo(memo)
+                .build();
+    }
 }
