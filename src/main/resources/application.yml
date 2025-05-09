@@ -48,4 +48,3 @@ mybatis:
     - /mappers/*.xml
   configuration:
     map-underscore-to-camel-case: true
-

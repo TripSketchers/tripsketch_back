@@ -5,20 +5,15 @@ import com.sketchers.tripsketch_back.entity.Album;
 import com.sketchers.tripsketch_back.entity.Photo;
 import com.sketchers.tripsketch_back.repository.AlbumMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class AlbumService {
     private final AlbumMapper albumMapper;
-    private final FirebaseStorageService firebaseStorageService;
 
     public AlbumListRespDto getAlbums(int userId, int tripId) {
         List<Album> albums = albumMapper.getAlbums(userId, tripId);
@@ -31,13 +26,12 @@ public class AlbumService {
         return albumListRespDto;
     }
 
-    public List<PhotoRespDto> getPhotosByAlbumId(int albumId) {
+    public PhotoRespDto getPhotosByAlbumId(int albumId) {
         List<Photo> photos = albumMapper.getPhotosByAlbumId(albumId);
 
-        // Photo 객체를 PhotoRespDto로 변환
-        return photos.stream()
-                     .map(Photo::toPhotoDto) // Photo 객체를 PhotoRespDto로 변환
-                     .collect(Collectors.toList()); // List<PhotoRespDto>로 반환
+        return  PhotoRespDto.builder()
+                .photos(photos)
+                .build();
     }
 
     public TripScheduleRespDto getTripSchedules(int userId, int tripId) {
@@ -45,14 +39,14 @@ public class AlbumService {
     }
 
     @Transactional //실패 시 롤백
-    public boolean createTripAlbum(int userId, int tripId, AlbumUploadReqDto albumUploadReqDto) {
+    public boolean createTripAlbum(int userId, int tripId, AlbumUploadReqDto albumUploadReqDto){
         try {
             //1. 해당 일정의 앨범이 존재하는지 검색
             int tripScheduleId = albumUploadReqDto.getTripScheduleId();
             int albumId = albumMapper.getAlbumId(userId, tripId, tripScheduleId);
 
             //2. 앨범이 없으면 새로 생성
-            if (albumId == 0) {
+            if(albumId == 0) {
                 AlbumCreateReqDto request = AlbumCreateReqDto.builder()
                         .userId(userId)
                         .tripId(tripId)
@@ -81,28 +75,15 @@ public class AlbumService {
             throw new RuntimeException("앨범 업로드 중 오류 발생: " + e.getMessage(), e);
         }
     }
-
     public boolean editPhotoMemo(int photoId, String memo) {
         return albumMapper.editPhotoMemo(photoId, memo);
     }
-
     public boolean deleteAlbum(int albumId) {
         return albumMapper.deleteAlbum(albumId);
     }
 
     @Transactional
-    public String deletePhoto(int userId, int tripId, int photoId) {
-        int ownerId = albumMapper.findOwner(tripId, photoId);
-        if (ownerId != userId) {
-            return "이 앨범을 삭제할 권한이 없습니다.";
-        }
-
-        String photoUrl = albumMapper.getPhoto(photoId).getPhotoUrl();
-        boolean deletedFromFirebase = firebaseStorageService.deletePhotoFromFirebase(photoUrl);
-        if (!deletedFromFirebase) {
-            return "사진 삭제 실패 (Firebase)";
-        }
-
+    public boolean deletePhoto(int tripId, int photoId) {
         // 1. 앨범 ID 조회 (삭제 전 album_id 확보)
         int albumId = albumMapper.findAlbumId(photoId);
 
@@ -114,53 +95,12 @@ public class AlbumService {
         if (remainingCount == 0) {
             albumMapper.deleteAlbum(albumId);
         }
-        return "사진 삭제 성공";
+        return true;
     }
 
     @Transactional
-    public String deleteSelectedPhotos(int userId, int tripId, List<PhotoDeleteReqDto> checkedPhotos) {
+    public boolean deleteSelectedPhotos(List<Integer> checkedPhoto) {
 
-        try {
-            // 권한 확인
-           for (PhotoDeleteReqDto dto : checkedPhotos) {
-               int ownerId = albumMapper.findOwner(tripId, dto.getPhotoId());
-               if (ownerId != userId) {
-                   return "하나 이상의 사진에 대해 삭제 권한이 없습니다.";
-               }
-           }
-
-           // Firebase에서 사진 삭제 + DB에서 삭제
-           Set<Integer> albumIdsToCheck = new HashSet<>();
-           for (PhotoDeleteReqDto dto : checkedPhotos) {
-               String photoUrl = albumMapper.getPhoto(dto.getPhotoId()).getPhotoUrl();
-
-               boolean deletedFromFirebase = firebaseStorageService.deletePhotoFromFirebase(photoUrl);
-               if (!deletedFromFirebase) {
-                   return "일부 사진 삭제 실패 (Firebase)";
-               }
-
-               albumMapper.deletePhoto(dto.getPhotoId());
-               albumIdsToCheck.add(dto.getAlbumId());
-           }
-
-           // 앨범에 사진이 남아 있는지 확인 후 없으면 앨범 삭제
-           for (Integer albumId : albumIdsToCheck) {
-               if (albumMapper.countPhotos(albumId) == 0) {
-                   albumMapper.deleteAlbum(albumId);
-               }
-           }
-           return "선택한 사진 삭제 성공";
-        } catch (Exception e) {
-                e.printStackTrace();
-                throw new RuntimeException("사진 또는 앨범 삭제 중 오류가 발생했습니다.", e);
-        }
-    }
-
-    public int findOwner(int tripId, int photoId){
-        return  albumMapper.findOwner(tripId, photoId);
-    }
-
-    public PhotoRespDto getPhoto(int albumId) {
-        return albumMapper.getPhoto(albumId).toPhotoDto();
+        return albumMapper.deleteSelectedPhotos(checkedPhoto) > 0;
     }
 }

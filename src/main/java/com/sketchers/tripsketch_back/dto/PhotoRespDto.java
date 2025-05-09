@@ -9,7 +9,5 @@ import java.util.List;
 @Data
 @Builder
 public class PhotoRespDto {
-    private int photoId;
-    private String photoUrl;
-    private String memo;
+    private List<Photo> photos;
 }

@@ -1,10 +1,8 @@
 package com.sketchers.tripsketch_back.controller;
 
 import com.sketchers.tripsketch_back.dto.AlbumUploadReqDto;
-import com.sketchers.tripsketch_back.dto.PhotoDeleteReqDto;
 import com.sketchers.tripsketch_back.security.PrincipalUser;
 import com.sketchers.tripsketch_back.service.AlbumService;
-import com.sketchers.tripsketch_back.service.FirebaseStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +15,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AlbumController {
     private final AlbumService albumService;
-    private final FirebaseStorageService firebaseStorageService;
 
     // 여행 앨범 조회
     @GetMapping("/api/trips/{tripId}/albums")
@@ -68,15 +65,13 @@ public class AlbumController {
     // 개별 사진 삭제
     @DeleteMapping("/api/trips/{tripId}/album/photos/{photoId}")
     public ResponseEntity<?> deletePhoto(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId, @PathVariable int photoId){
-        int userId= principalUser.getUser().getUserId();
-        return ResponseEntity.ok(albumService.deletePhoto(userId, tripId, photoId));
+        return ResponseEntity.ok(albumService.deletePhoto(tripId, photoId));
     }
 
     // 선택한 사진 여러 개 삭제
     @DeleteMapping("/api/trips/{tripId}/album/photos")
-    public ResponseEntity<?> deleteSelectedPhotos(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId, @RequestBody List<PhotoDeleteReqDto> checkedPhotos){
-        int userId= principalUser.getUser().getUserId();
-        return ResponseEntity.ok(albumService.deleteSelectedPhotos(userId, tripId, checkedPhotos));
+    public ResponseEntity<?> deleteSelectedPhotos(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId, @RequestBody List<Integer> data){
+        return ResponseEntity.ok(albumService.deleteSelectedPhotos(data));
     }
 
 }
