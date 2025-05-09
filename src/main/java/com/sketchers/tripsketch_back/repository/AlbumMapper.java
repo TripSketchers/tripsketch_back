@@ -22,4 +22,6 @@ public interface AlbumMapper {
     public int deleteSelectedPhotos(List<Integer> checkedPhoto);
     public int findAlbumId(int photoId);
     public int countPhotos(int albumId);
+    public int findOwner(int tripId, int photoId);
+    public Photo getPhoto(int photoId);
 }
