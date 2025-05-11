@@ -22,6 +22,45 @@
         WHERE google_place_id = #{googlePlaceId}
     </select>
 
+    <select id="findTripByTripId" resultType="com.sketchers.tripsketch_back.entity.Trip">
+        SELECT
+            trip_id,
+            user_id,
+            title,
+            start_date,
+            end_date,
+            ko_name as tripDestinationKoName,
+            transport_type
+        from
+            trip_tb tt
+            left outer join trip_destination_tb tdt on(tdt.trip_destination_id = tt.trip_destination_id)
+        where
+            trip_id = #{tripId}
+    </select>
+
+    <select id="findStoredPlaceByTripId" resultType="com.sketchers.tripsketch_back.entity.PlaceStore">
+        SELECT *
+        FROM place_store_tb
+        WHERE trip_id = #{tripId}
+    </select>
+
+    <select id="findStoredAccByTripId" resultType="com.sketchers.tripsketch_back.entity.Accommodation">
+        SELECT *
+        FROM accommodation_tb
+        WHERE trip_id = #{tripId}
+    </select>
+
+    <select id="findTripScheduleByTripId" resultType="com.sketchers.tripsketch_back.entity.TripSchedule">
+        SELECT *
+        FROM trip_schedule_tb
+        WHERE trip_id = #{tripId}
+    </select>
+    <select id="findPlaceByPlaceId" resultType="com.sketchers.tripsketch_back.entity.Place">
+        SELECT *
+        FROM place_tb
+        WHERE place_id = #{placeId}
+    </select>
+
     <insert id="insertPlace" useGeneratedKeys="true" keyProperty="placeId">
         INSERT INTO place_tb
         VALUES (

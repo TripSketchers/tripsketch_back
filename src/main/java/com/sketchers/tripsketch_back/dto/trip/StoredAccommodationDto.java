@@ -1,13 +1,14 @@
-package com.sketchers.tripsketch_back.dto.trip.create;
+package com.sketchers.tripsketch_back.dto.trip;
 
 import com.sketchers.tripsketch_back.entity.Accommodation;
-import com.sketchers.tripsketch_back.entity.Place;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-public class StoredAccommodationReqDto {
+@Builder
+public class StoredAccommodationDto {
     private PlaceInfoDto place;
     private Date checkInDate;
     private Date checkOutDate;

@@ -1,10 +1,9 @@
 package com.sketchers.tripsketch_back.repository;
 
-import com.sketchers.tripsketch_back.entity.Accommodation;
-import com.sketchers.tripsketch_back.entity.Place;
-import com.sketchers.tripsketch_back.entity.PlaceStore;
-import com.sketchers.tripsketch_back.entity.Trip;
+import com.sketchers.tripsketch_back.entity.*;
 import org.apache.ibatis.annotations.Mapper;
+
+import java.util.List;
 
 @Mapper
 public interface TripMapper {
@@ -13,4 +12,9 @@ public interface TripMapper {
     public int insertPlace(Place place);
     public int insertPlaceStore(PlaceStore placeStore);
     public int insertAccommodation(Accommodation accommodation);
+    public Trip findTripByTripId(int tripId);
+    public List<PlaceStore> findStoredPlaceByTripId(int tripId);
+    public List<Accommodation> findStoredAccByTripId(int tripId);
+    public List<TripSchedule> findTripScheduleByTripId(int tripId);
+    public Place findPlaceByPlaceId(int placeId);
 }

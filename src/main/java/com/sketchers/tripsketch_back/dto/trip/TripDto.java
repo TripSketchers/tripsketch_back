@@ -1,4 +1,4 @@
-package com.sketchers.tripsketch_back.dto.trip.create;
+package com.sketchers.tripsketch_back.dto.trip;
 
 import com.sketchers.tripsketch_back.entity.Trip;
 import lombok.AllArgsConstructor;
@@ -12,13 +12,15 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class TripReqDto {
+public class TripDto {
+    private int tripId;
     private int userId;
     private String title;
     private Date startDate;
     private Date endDate;
     private int tripDestinationId;
     private int transportType;
+    private String tripDestinationKoName;
 
     public Trip toTrip() {
         return Trip.builder()

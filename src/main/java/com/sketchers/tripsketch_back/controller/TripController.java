@@ -1,17 +1,12 @@
 package com.sketchers.tripsketch_back.controller;
 
-import com.sketchers.tripsketch_back.dto.trip.create.StoredAccommodationReqDto;
-import com.sketchers.tripsketch_back.dto.trip.create.StoredPlaceReqDto;
-import com.sketchers.tripsketch_back.dto.trip.create.TripCreateReqDto;
-import com.sketchers.tripsketch_back.dto.trip.create.TripReqDto;
+import com.sketchers.tripsketch_back.dto.trip.TripCreateReqDto;
 import com.sketchers.tripsketch_back.service.TripService;
 import com.sketchers.tripsketch_back.security.PrincipalUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -28,5 +23,10 @@ public class TripController {
     ) {
         tripCreateReqDto.getTrip().setUserId(principalUser.getUser().getUserId());
         return ResponseEntity.ok(tripService.insertTrip(tripCreateReqDto));
+    }
+
+    @GetMapping("/api/trips/{tripId}")
+    public ResponseEntity<?> getTrip(@PathVariable int tripId) {
+        return ResponseEntity.ok(tripService.getTripInfo(tripId));
     }
 }
