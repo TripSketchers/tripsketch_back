@@ -17,4 +17,5 @@ public interface TripMapper {
     public List<Accommodation> findStoredAccByTripId(int tripId);
     public List<TripSchedule> findTripScheduleByTripId(int tripId);
     public Place findPlaceByPlaceId(int placeId);
+    public Place findPlaceByPlaceStoreId(int placeStoreId);
 }

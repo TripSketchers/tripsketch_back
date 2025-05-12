@@ -108,8 +108,23 @@ public class TripService {
         // 4. Trip Schedules 조회
         List<TripSchedule> tripSchedules = tripMapper.findTripScheduleByTripId(tripId);
         List<TripScheduleDto> tripScheduleDtos = tripSchedules.stream()
-                .map(TripSchedule::toTripScheduleDto)   // TripSchedule 객체 하나하나에 대해 .toTripScheduleDto()를 호출하는 것과 같음
-                .collect(Collectors.toList());
+            .map(ts -> {
+                Place place = tripMapper.findPlaceByPlaceStoreId(ts.getPlaceStoreId());
+                return TripScheduleDto.builder()
+                    .tripScheduleId(ts.getTripScheduleId())
+                    .tripId(ts.getTripId())
+                    .placeStoreId(ts.getPlaceStoreId())
+                    .date(ts.getDate())
+                    .startTime(ts.getStartTime())
+                    .endTime(ts.getEndTime())
+                    .stayTime(ts.getStayTime())
+                    .travelTime(ts.getTravelTime())
+                    .position(ts.getPosition())
+                    .isLocked(ts.getIsLocked())
+                    .place(place != null ? place.toPlaceInfoDto() : null)
+                    .build();
+            })
+            .collect(Collectors.toList());
 
         // 5. 최종 DTO 조립 및 반환
         return TripPlanRespDto.builder()

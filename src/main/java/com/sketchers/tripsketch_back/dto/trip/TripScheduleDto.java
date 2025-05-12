@@ -19,4 +19,5 @@ public class TripScheduleDto {
     private int travelTime;
     private int position;
     private int isLocked;
+    private PlaceInfoDto place;
 }

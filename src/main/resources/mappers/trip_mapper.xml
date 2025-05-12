@@ -60,6 +60,22 @@
         FROM place_tb
         WHERE place_id = #{placeId}
     </select>
+    <select id="findPlaceByPlaceStoreId" resultType="com.sketchers.tripsketch_back.entity.Place">
+        SELECT
+            pt.place_id,
+            pt.google_place_id,
+            pt.name,
+            pt.address,
+            pt.latitude,
+            pt.longitude,
+            pt.category,
+            pt.rating
+        FROM
+            place_tb pt
+            left outer join place_store_tb pst on(pst.place_id = pt.place_id)
+        where
+            place_store_id = #{placeStoreId}
+    </select>
 
     <insert id="insertPlace" useGeneratedKeys="true" keyProperty="placeId">
         INSERT INTO place_tb
