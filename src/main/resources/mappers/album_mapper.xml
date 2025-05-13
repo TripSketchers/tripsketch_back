@@ -92,5 +92,38 @@
         delete from photo_tb
         where photo_id = #{photoId};
     </delete>
-
+    <delete id="deleteSelectedPhotos">
+        delete from photo_tb
+        where photo_id IN
+        <foreach item="photoId" collection="checkedPhoto" open="(" separator="," close=")">
+            #{photoId}
+        </foreach>
+    </delete>
+    <select id="findAlbumId" resultType="int">
+        select album_id
+        from photo_tb
+        where photo_id = #{photoId};
+    </select>
+    <select id="countPhotos" resultType="int">
+        select count(*)
+        from photo_tb
+        where album_id = #{albumId};
+    </select>
+    <select id="findOwner" resultType="int">
+        select at.user_id
+        from album_tb at
+        	left outer join photo_tb pt on(pt.album_id = at.album_id)
+        where pt.photo_id = #{photoId}
+            and at.trip_id = #{tripId};
+    </select>
+    <select id="getPhoto" resultType="com.sketchers.tripsketch_back.entity.Photo" >
+        select
+            photo_id,
+            photo_url,
+            memo
+        from
+            photo_tb
+        where
+            photo_id = #{photoId}
+        </select>
 </mapper>

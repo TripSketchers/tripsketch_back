@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Firebase 인증 정보는 노출되면 안 됨!
+src/main/resources/firebase/firebase-service-account.json
