@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 public class PlaceController {
@@ -15,9 +17,10 @@ public class PlaceController {
     public ResponseEntity<?> getPlacesByTextSearch(
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String keyword,
-            @RequestParam(required = false) String pagetoken
+            @RequestParam(required = false) String pagetoken,
+            @RequestParam(required = false) List<Double> location
     ) {
-        return ResponseEntity.ok(placeService.getPlacesByTextSearch(type, keyword, pagetoken));
+        return ResponseEntity.ok(placeService.getPlacesByTextSearch(type, keyword, pagetoken, location));
     }
 
 }

@@ -22,7 +22,7 @@ public class PlaceService {
     @Value("${google.places.api.key}")
     private String apiKey;
 
-    public PlaceRespDto.textSearch getPlacesByTextSearch(String type, String keyword, String pagetoken) {
+    public PlaceRespDto.textSearch getPlacesByTextSearch(String type, String keyword, String pagetoken, List<Double> location) {
         String url = "https://places.googleapis.com/v1/places:searchText";
 
         try {
@@ -37,11 +37,11 @@ public class PlaceService {
                 body.put("includedType", type);
             }
 
-            // ✅ 지역 제한 설정 (부산 인근)
+            // ✅ 지역 제한 설정
             body.put("locationRestriction", Map.of(
                     "rectangle", Map.of(
-                            "low", Map.of("latitude", 35.05, "longitude", 128.94),
-                            "high", Map.of("latitude", 35.32, "longitude", 129.28)
+                            "low", Map.of("latitude", location.get(0), "longitude", location.get(1)),
+                            "high", Map.of("latitude", location.get(2), "longitude", location.get(3))
                     )
             ));
 
