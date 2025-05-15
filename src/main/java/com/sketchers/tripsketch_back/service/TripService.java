@@ -135,4 +135,36 @@ public class TripService {
                 .build();
     }
 
+    @Transactional
+    public boolean updateStoredPlaces(int tripId, StoredPlaceUpdateReqDto storedPlaceUpdateReqDto) {
+        try {
+            // 1. 기존 저장 장소 전부 삭제 (완전 교체 방식)
+            tripMapper.deletePlaceStoresByTripId(tripId);
+
+            // 2. 새로 저장할 장소 처리
+            for (StoredPlaceDto placeDto : storedPlaceUpdateReqDto.getStoredPlaces()) {
+                PlaceInfoDto placeInfo = placeDto.getPlace();
+
+                // 2-1. Place 테이블에 이미 존재하는지 확인
+                Place place = tripMapper.findByGooglePlaceId(placeInfo.getGooglePlaceId());
+                if (place == null) {
+                    // 존재하지 않으면 새로 삽입
+                    place = placeInfo.toPlace();
+                    tripMapper.insertPlace(place);
+                }
+
+                // 2-2. PlaceStore에 새로 매핑 (중복 저장 방지 필요 없으나, 재확인 가능)
+                PlaceStore placeStore = PlaceStore.builder()
+                        .tripId(tripId)
+                        .placeId(place.getPlaceId())
+                        .build();
+
+                tripMapper.insertPlaceStore(placeStore);
+            }
+            return true;
+        } catch (Exception e) {
+            throw new TripInsertException("[장소 저장 실패] - " + e.getMessage());
+        }
+    }
+
 }

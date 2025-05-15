@@ -15,8 +15,4 @@ public class PlaceStore {
     private int placeStoreId;
     private int placeId;
     private int tripId;
-
-    public StoredPlaceDto toStoredPlaceDto() {
-        return StoredPlaceDto.builder().build();
-    }
 }

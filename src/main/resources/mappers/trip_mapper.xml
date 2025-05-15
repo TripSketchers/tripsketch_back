@@ -15,6 +15,10 @@
             #{transportType}
         )
     </insert>
+    <delete id="deletePlaceStoresByTripId">
+        delete from place_store_tb
+        where trip_id = #{tripId}
+    </delete>
 
     <select id="findByGooglePlaceId" resultType="com.sketchers.tripsketch_back.entity.Place">
         SELECT *
@@ -97,8 +101,7 @@
         VALUES (
             0,
             #{placeId},
-            #{tripId},
-            #{stayTime}
+            #{tripId}
         )
     </insert>
 
