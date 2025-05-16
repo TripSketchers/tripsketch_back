@@ -8,6 +8,7 @@ import java.util.List;
 @Mapper
 public interface TripMapper {
     public int insertTrip(Trip trip);
+    public int updateTrip(Trip trip);
     public Place findByGooglePlaceId(String googlePlaceId);
     public int insertPlace(Place place);
     public int insertPlaceStore(PlaceStore placeStore);
@@ -19,4 +20,5 @@ public interface TripMapper {
     public Place findPlaceByPlaceId(int placeId);
     public Place findPlaceByPlaceStoreId(int placeStoreId);
     public int deletePlaceStoresByTripId(int tripId);
+    public int deleteAccommodationsByTripId(int tripId);
 }

@@ -24,6 +24,7 @@ public class TripDto {
 
     public Trip toTrip() {
         return Trip.builder()
+                .tripId(tripId)
                 .userId(userId)
                 .title(title)
                 .startDate(startDate)

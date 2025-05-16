@@ -15,9 +15,23 @@
             #{transportType}
         )
     </insert>
+    <update id="updateTrip">
+        UPDATE trip_tb
+        SET
+            title = #{title},
+            start_date = #{startDate},
+            end_date = #{endDate},
+            trip_destination_id = #{tripDestinationId},
+            transport_type = #{transportType}
+        WHERE trip_id = #{tripId}
+    </update>
     <delete id="deletePlaceStoresByTripId">
         delete from place_store_tb
         where trip_id = #{tripId}
+    </delete>
+    <delete id="deleteAccommodationsByTripId">
+        DELETE FROM accommodation_tb
+        WHERE trip_id = #{tripId}
     </delete>
 
     <select id="findByGooglePlaceId" resultType="com.sketchers.tripsketch_back.entity.Place">

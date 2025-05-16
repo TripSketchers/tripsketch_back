@@ -19,11 +19,20 @@ public class TripController {
 
     @PostMapping("/api/trip")
     public ResponseEntity<?> createTrip(
-            @AuthenticationPrincipal PrincipalUser principalUser,
-            @Valid @RequestBody TripCreateReqDto tripCreateReqDto
+        @AuthenticationPrincipal PrincipalUser principalUser,
+        @Valid @RequestBody TripCreateReqDto tripCreateReqDto
     ) {
         tripCreateReqDto.getTrip().setUserId(principalUser.getUser().getUserId());
         return ResponseEntity.ok(tripService.insertTrip(tripCreateReqDto));
+    }
+
+    @PutMapping("/api/trip/{tripId}")
+    public ResponseEntity<?> updateTrip(
+        @AuthenticationPrincipal PrincipalUser principalUser,
+        @Valid @RequestBody TripCreateReqDto tripCreateReqDto
+    ) {
+        tripCreateReqDto.getTrip().setUserId(principalUser.getUser().getUserId());
+        return ResponseEntity.ok(tripService.updateTrip(tripCreateReqDto));
     }
 
     @GetMapping("/api/trips/{tripId}")

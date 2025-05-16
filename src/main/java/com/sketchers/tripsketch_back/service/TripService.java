@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,59 +21,77 @@ public class TripService {
     @Transactional
     public boolean insertTrip(TripCreateReqDto tripCreateReqDto) {
         try {
-            // 1. Trip 저장
             Trip trip = tripCreateReqDto.getTrip().toTrip();
             tripMapper.insertTrip(trip);
             int tripId = trip.getTripId();
 
-            // 2. 일반 장소 저장
-            for (StoredPlaceDto placeDto : tripCreateReqDto.getStoredPlaces()) {
-                try {
-                    PlaceInfoDto placeInfo = placeDto.getPlace();
-                    Place place = tripMapper.findByGooglePlaceId(placeInfo.getGooglePlaceId());
-                    if (place == null) {
-                        place = placeInfo.toPlace();
-                        tripMapper.insertPlace(place);
-                    }
-
-                    PlaceStore placeStore = PlaceStore.builder()
-                            .tripId(tripId)
-                            .placeId(place.getPlaceId())
-                            .build();
-                    tripMapper.insertPlaceStore(placeStore);
-
-                } catch (Exception e) {
-                    throw new TripInsertException("[일반 장소 저장 실패] - " + e.getMessage());
-                }
-            }
-
-            // 3. 숙소 저장
-            for (StoredAccommodationDto acDto : tripCreateReqDto.getStoredAccommodations()) {
-                try {
-                    PlaceInfoDto placeInfo = acDto.getPlace();
-                    Place place = tripMapper.findByGooglePlaceId(placeInfo.getGooglePlaceId());
-                    if (place == null) {
-                        place = placeInfo.toPlace();
-                        tripMapper.insertPlace(place);
-                    }
-
-                    Accommodation accommodation = Accommodation.builder()
-                            .tripId(tripId)
-                            .placeId(place.getPlaceId())
-                            .checkInDate(acDto.getCheckInDate())
-                            .checkOutDate(acDto.getCheckOutDate())
-                            .build();
-                    tripMapper.insertAccommodation(accommodation);
-
-                } catch (Exception e) {
-                    throw new TripInsertException("[숙소 저장 실패] - " + e.getMessage());
-                }
-            }
+            savePlaces(tripId, tripCreateReqDto.getStoredPlaces());
+            saveAccommodations(tripId, tripCreateReqDto.getStoredAccommodations());
 
             return true;
-
         } catch (Exception e) {
             throw new TripInsertException("[여행 생성 실패] - " + e.getMessage());
+        }
+    }
+
+    @Transactional
+    public boolean updateTrip(TripCreateReqDto tripCreateReqDto) {
+        try {
+            int tripId = tripCreateReqDto.getTrip().getTripId();
+            System.out.println(tripCreateReqDto.getTrip().toTrip());
+            tripMapper.updateTrip(tripCreateReqDto.getTrip().toTrip());
+
+            // 기존 데이터 삭제 (완전 교체 방식)
+            tripMapper.deletePlaceStoresByTripId(tripId);
+            tripMapper.deleteAccommodationsByTripId(tripId);
+
+            savePlaces(tripId, tripCreateReqDto.getStoredPlaces());
+            saveAccommodations(tripId, tripCreateReqDto.getStoredAccommodations());
+
+            return true;
+        } catch (Exception e) {
+            throw new TripInsertException("[여행 수정 실패] - " + e.getMessage());
+        }
+    }
+
+
+    private void savePlaces(int tripId, List<StoredPlaceDto> storedPlaces) {
+        for (StoredPlaceDto placeDto : storedPlaces) {
+            PlaceInfoDto placeInfo = placeDto.getPlace();
+            Place place = tripMapper.findByGooglePlaceId(placeInfo.getGooglePlaceId());
+
+            if (place == null) {
+                place = placeInfo.toPlace();
+                tripMapper.insertPlace(place);
+            }
+
+            PlaceStore placeStore = PlaceStore.builder()
+                    .tripId(tripId)
+                    .placeId(place.getPlaceId())
+                    .build();
+
+            tripMapper.insertPlaceStore(placeStore);
+        }
+    }
+
+    private void saveAccommodations(int tripId, List<StoredAccommodationDto> accommodations) {
+        for (StoredAccommodationDto acDto : accommodations) {
+            PlaceInfoDto placeInfo = acDto.getPlace();
+            Place place = tripMapper.findByGooglePlaceId(placeInfo.getGooglePlaceId());
+
+            if (place == null) {
+                place = placeInfo.toPlace();
+                tripMapper.insertPlace(place);
+            }
+
+            Accommodation accommodation = Accommodation.builder()
+                    .tripId(tripId)
+                    .placeId(place.getPlaceId())
+                    .checkInDate(acDto.getCheckInDate())
+                    .checkOutDate(acDto.getCheckOutDate())
+                    .build();
+
+            tripMapper.insertAccommodation(accommodation);
         }
     }
 
@@ -108,23 +127,23 @@ public class TripService {
         // 4. Trip Schedules 조회
         List<TripSchedule> tripSchedules = tripMapper.findTripScheduleByTripId(tripId);
         List<TripScheduleDto> tripScheduleDtos = tripSchedules.stream()
-            .map(ts -> {
-                Place place = tripMapper.findPlaceByPlaceStoreId(ts.getPlaceStoreId());
-                return TripScheduleDto.builder()
-                    .tripScheduleId(ts.getTripScheduleId())
-                    .tripId(ts.getTripId())
-                    .placeStoreId(ts.getPlaceStoreId())
-                    .date(ts.getDate())
-                    .startTime(ts.getStartTime())
-                    .endTime(ts.getEndTime())
-                    .stayTime(ts.getStayTime())
-                    .travelTime(ts.getTravelTime())
-                    .position(ts.getPosition())
-                    .isLocked(ts.getIsLocked())
-                    .place(place != null ? place.toPlaceInfoDto() : null)
-                    .build();
-            })
-            .collect(Collectors.toList());
+                .map(ts -> {
+                    Place place = tripMapper.findPlaceByPlaceStoreId(ts.getPlaceStoreId());
+                    return TripScheduleDto.builder()
+                            .tripScheduleId(ts.getTripScheduleId())
+                            .tripId(ts.getTripId())
+                            .placeStoreId(ts.getPlaceStoreId())
+                            .date(ts.getDate())
+                            .startTime(ts.getStartTime())
+                            .endTime(ts.getEndTime())
+                            .stayTime(ts.getStayTime())
+                            .travelTime(ts.getTravelTime())
+                            .position(ts.getPosition())
+                            .isLocked(ts.getIsLocked())
+                            .place(place != null ? place.toPlaceInfoDto() : null)
+                            .build();
+                })
+                .collect(Collectors.toList());
 
         // 5. 최종 DTO 조립 및 반환
         return TripPlanRespDto.builder()
