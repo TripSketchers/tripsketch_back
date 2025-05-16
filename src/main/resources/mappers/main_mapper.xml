@@ -14,4 +14,51 @@
                 </if>
             </where>
     </select>
+    <select id="getUpcomingTrip" resultType="com.sketchers.tripsketch_back.entity.Trip">
+        SELECT
+            tt.* ,
+            tdt.ko_name as tripDestinationKoName,
+            tdt.img
+        FROM
+            trip_tb tt
+        	left outer join trip_destination_tb tdt on(tdt.trip_destination_id = tt.trip_destination_id)
+        where
+            tt.user_id = #{userId}
+            and (tt.start_date >= now() or (now() >= tt.start_date and tt.end_date >= now()))
+        order by
+            CASE
+            WHEN NOW() >= tt.start_date AND tt.end_date >= NOW() THEN 0
+            WHEN tt.start_date >= NOW() THEN 1
+            ELSE 2
+            END,
+            tt.start_date ASC
+        LIMIT 1
+    </select>
+    <select id="getRecentAlbums" resultType="com.sketchers.tripsketch_back.entity.Photo">
+        SELECT p.*, a.trip_id
+        FROM photo_tb p
+        JOIN album_tb a ON p.album_id = a.album_id
+        JOIN (
+            SELECT album_id, MAX(photo_id) AS max_photo_id
+            FROM photo_tb
+            WHERE album_id IN (
+                SELECT a.album_id
+                FROM (
+                    SELECT album_id
+                    FROM album_tb
+                    WHERE trip_id = (
+                        SELECT tt.trip_id
+                        FROM tripsketch.trip_tb tt
+                        WHERE tt.user_id = 5
+                          AND NOW() >= tt.start_date
+                        ORDER BY tt.start_date DESC
+                        LIMIT 1
+                    )
+                    ORDER BY album_id DESC
+                    LIMIT 3
+                ) a
+            )
+            GROUP BY album_id
+        ) pm ON p.album_id = pm.album_id AND p.photo_id = pm.max_photo_id;
+    </select>
 </mapper>

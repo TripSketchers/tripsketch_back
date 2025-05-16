@@ -9,6 +9,5 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class TripRespDto {
-
     private List<Trip> tripList;
 }

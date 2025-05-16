@@ -1,6 +1,9 @@
 package com.sketchers.tripsketch_back.service;
 
+import com.sketchers.tripsketch_back.dto.PhotoRespDto;
 import com.sketchers.tripsketch_back.dto.TripDestinationRespDto;
+import com.sketchers.tripsketch_back.dto.main.TripRespDto;
+import com.sketchers.tripsketch_back.entity.Photo;
 import com.sketchers.tripsketch_back.repository.MainMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,9 +24,18 @@ public class MainService {
                              .filter(s -> !s.isEmpty())
                              .collect(Collectors.toList());
         }
-        System.out.println("검색 키워드: " + keywords);
         return TripDestinationRespDto.builder()
                 .tripDestinations(mainMapper.getTripDestinations(keywords))
                 .build();
+    }
+
+    public TripRespDto getUpcomingTrip(int userId) {
+        return mainMapper.getUpcomingTrip(userId).toMainTripRespDto();
+    }
+    public List<PhotoRespDto> getRecentAlbums(int userId) {
+        List<Photo> photos = mainMapper.getRecentAlbums(userId);
+        return photos.stream()
+                 .map(Photo::toPhotoDto) // Photo 객체를 PhotoRespDto로 변환
+                 .collect(Collectors.toList()); // List<PhotoRespDto>로 반환
     }
 }

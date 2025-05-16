@@ -14,8 +14,20 @@ import org.springframework.web.bind.annotation.RestController;
 public class MainController {
     private final MainService mainService;
 
-    @GetMapping("/api/trip-destinations")
+    @GetMapping("/api/main/trip-destinations")
     public ResponseEntity<?> getTripDestinations(@AuthenticationPrincipal PrincipalUser principalUser, @RequestParam(required = false) String searchKeyword){
         return  ResponseEntity.ok(mainService.getTripDestinations(searchKeyword));
+    }
+
+    @GetMapping("/api/main/upcoming-trip")
+    public ResponseEntity<?> getUpcomingTrip(@AuthenticationPrincipal PrincipalUser principalUser){
+        int userId = principalUser.getUser().getUserId();
+        return  ResponseEntity.ok(mainService.getUpcomingTrip(userId));
+    }
+
+    @GetMapping("/api/main/recent-albums")
+    public ResponseEntity<?> getRecentAlbums(@AuthenticationPrincipal PrincipalUser principalUser){
+        int userId = principalUser.getUser().getUserId();
+        return  ResponseEntity.ok(mainService.getRecentAlbums(userId));
     }
 }
