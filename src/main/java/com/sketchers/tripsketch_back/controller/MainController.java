@@ -15,19 +15,24 @@ public class MainController {
     private final MainService mainService;
 
     @GetMapping("/api/main/trip-destinations")
-    public ResponseEntity<?> getTripDestinations(@AuthenticationPrincipal PrincipalUser principalUser, @RequestParam(required = false) String searchKeyword){
-        return  ResponseEntity.ok(mainService.getTripDestinations(searchKeyword));
+    public ResponseEntity<?> getTripDestinations(@AuthenticationPrincipal PrincipalUser principalUser, @RequestParam(required = false) String searchKeyword) {
+        return ResponseEntity.ok(mainService.getTripDestinations(searchKeyword));
     }
 
     @GetMapping("/api/main/upcoming-trip")
-    public ResponseEntity<?> getUpcomingTrip(@AuthenticationPrincipal PrincipalUser principalUser){
+    public ResponseEntity<?> getUpcomingTrip(@AuthenticationPrincipal PrincipalUser principalUser) {
         int userId = principalUser.getUser().getUserId();
-        return  ResponseEntity.ok(mainService.getUpcomingTrip(userId));
+        return ResponseEntity.ok(mainService.getUpcomingTrip(userId));
     }
 
     @GetMapping("/api/main/recent-albums")
-    public ResponseEntity<?> getRecentAlbums(@AuthenticationPrincipal PrincipalUser principalUser){
+    public ResponseEntity<?> getRecentAlbums(@AuthenticationPrincipal PrincipalUser principalUser) {
         int userId = principalUser.getUser().getUserId();
-        return  ResponseEntity.ok(mainService.getRecentAlbums(userId));
+        return ResponseEntity.ok(mainService.getRecentAlbums(userId));
+    }
+
+    @GetMapping("/api/main/popular-trips")
+    public ResponseEntity<?> getPopularTrips() {
+        return ResponseEntity.ok(mainService.getPopularTrips());
     }
 }

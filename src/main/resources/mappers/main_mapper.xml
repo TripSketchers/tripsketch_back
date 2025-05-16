@@ -61,4 +61,30 @@
             GROUP BY album_id
         ) pm ON p.album_id = pm.album_id AND p.photo_id = pm.max_photo_id;
     </select>
+    <select id="getPopularDomesticTrip" resultType="com.sketchers.tripsketch_back.entity.TripDestination">
+        SELECT
+            tdt.*
+        FROM trip_tb tt
+            left outer join trip_destination_tb tdt on(tdt.trip_destination_id = tt.trip_destination_id)
+        where
+            tdt.ko_name like "대한민국%"
+        GROUP BY
+            tdt.trip_destination_id
+        ORDER BY
+            COUNT(*) DESC
+        limit 3;
+    </select>
+    <select id="getPopularOverseasTrip" resultType="com.sketchers.tripsketch_back.entity.TripDestination">
+        SELECT
+            tdt.*
+        FROM trip_tb tt
+            left outer join trip_destination_tb tdt on(tdt.trip_destination_id = tt.trip_destination_id)
+        where
+            tdt.ko_name not like "대한민국%"
+        GROUP BY
+            tdt.trip_destination_id
+        ORDER BY
+            COUNT(*) DESC
+        limit 3;
+    </select>
 </mapper>

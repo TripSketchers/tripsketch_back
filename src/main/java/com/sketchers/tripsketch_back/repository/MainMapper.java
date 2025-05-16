@@ -13,4 +13,6 @@ public interface MainMapper {
     public List<TripDestination> getTripDestinations(@Param("keywords") List<String> keywords);
     public Trip getUpcomingTrip(int userId);
     public List<Photo> getRecentAlbums(int userId);
+    public List<TripDestination> getPopularDomesticTrip();
+    public List<TripDestination> getPopularOverseasTrip();
 }
