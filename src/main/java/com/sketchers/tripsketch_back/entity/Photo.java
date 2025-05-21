@@ -11,12 +11,16 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Data
 public class Photo {
+    private int tripId;
+    private int albumId;
     private int photoId;
     private String photoUrl;
     private String memo;
 
     public PhotoRespDto toPhotoDto() {
         return PhotoRespDto.builder()
+                .tripId(tripId)
+                .albumId(albumId)
                 .photoId(photoId)
                 .photoUrl(photoUrl)
                 .memo(memo)

@@ -9,6 +9,8 @@ import java.util.List;
 @Data
 @Builder
 public class PhotoRespDto {
+    private int tripId;
+    private int albumId;
     private int photoId;
     private String photoUrl;
     private String memo;
