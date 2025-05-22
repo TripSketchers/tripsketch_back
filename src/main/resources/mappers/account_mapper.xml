@@ -46,14 +46,24 @@
         where
             user_id = #{userId}
         ORDER BY
-            CASE WHEN start_date >= NOW() THEN 0 ELSE 1 END,
-            CASE WHEN start_date >= NOW()
-                THEN start_date
-                ELSE NULL  -- ASC 정렬이라 우선순위 없음
-            END ASC,
-            CASE WHEN start_date &lt; NOW()
-                THEN start_date
-                ELSE NULL
-            END DESC
+            CASE
+                WHEN NOW() >= start_date AND end_date >= NOW() THEN 0  -- 여행 중
+                WHEN start_date = CURRENT_DATE THEN 1                  -- D-Day
+                WHEN start_date > NOW() THEN 2                         -- 미래
+                ELSE 3                                                 -- 과거
+            END,
+            CASE
+                WHEN NOW() >= start_date AND end_date >= NOW() THEN start_date  -- 여행 중: 시작 빠른 순
+                WHEN start_date = CURRENT_DATE THEN start_date                  -- D-Day: 오늘
+                WHEN start_date > NOW() THEN start_date                         -- 미래: 오름차순
+                ELSE end_date                                                   -- 과거: 종료일 기준 내림차순
+            END
+            ASC,  -- ASC지만 마지막은 DESC로 조절해야 함
+            CASE
+                WHEN start_date > NOW() THEN NULL
+                WHEN start_date = CURRENT_DATE THEN NULL
+                WHEN NOW() >= start_date AND end_date >= NOW() THEN NULL
+                ELSE end_date
+            END DESC  -- 과거 일정만 DESC로 재조정
     </select>
 </mapper>
