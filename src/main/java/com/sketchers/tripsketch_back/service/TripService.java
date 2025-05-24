@@ -1,12 +1,17 @@
 package com.sketchers.tripsketch_back.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sketchers.tripsketch_back.dto.trip.*;
 import com.sketchers.tripsketch_back.entity.*;
 import com.sketchers.tripsketch_back.exception.TripInsertException;
 import com.sketchers.tripsketch_back.repository.TripMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Objects;
@@ -17,6 +22,10 @@ import java.util.stream.Collectors;
 public class TripService {
 
     private final TripMapper tripMapper;
+    private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
+    @Value("${google.places.api.key}")
+    private String apiKey;
 
     @Transactional
     public boolean insertTrip(TripCreateReqDto tripCreateReqDto) {
@@ -183,6 +192,40 @@ public class TripService {
             return true;
         } catch (Exception e) {
             throw new TripInsertException("[장소 저장 실패] - " + e.getMessage());
+        }
+    }
+
+    public long getTravelTime(
+            double originLat, double originLng,
+            double destLat, double destLng,
+            String mode
+    ) {
+        try {
+            String url = String.format(
+                    "https://maps.googleapis.com/maps/api/distancematrix/json?" +
+                            "origins=%f,%f&destinations=%f,%f&mode=%s&departure_time=now&key=%s",
+                    originLat, originLng, destLat, destLng, mode, apiKey
+            );
+
+            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+            JsonNode root = objectMapper.readTree(response.getBody());
+
+            String status = root.path("status").asText();
+            if (!"OK".equals(status)) {
+                throw new IllegalStateException("Google API 응답 오류: " + status);
+            }
+
+            long seconds = root.path("rows")
+                               .get(0)
+                               .path("elements")
+                               .get(0)
+                               .path("duration")
+                               .path("value")
+                               .asLong();
+
+            return seconds;
+        } catch (Exception e) {
+            throw new RuntimeException("이동 시간 계산 실패: " + e.getMessage(), e);
         }
     }
 

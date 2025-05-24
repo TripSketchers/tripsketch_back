@@ -47,4 +47,15 @@ public class TripController {
     ) {
         return ResponseEntity.ok(tripService.updateStoredPlaces(tripId, storedPlaceUpdateReqDto));
     }
+
+    @GetMapping("/api/trips/traveltime")
+        public ResponseEntity<?> getTravelTime(
+                @RequestParam double originLat,
+                @RequestParam double originLng,
+                @RequestParam double destLat,
+                @RequestParam double destLng,
+                @RequestParam String mode
+        ) {
+            return ResponseEntity.ok(tripService.getTravelTime(originLat, originLng, destLat, destLng, mode));
+        }
 }
