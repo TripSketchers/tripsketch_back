@@ -1,5 +1,6 @@
 package com.sketchers.tripsketch_back.service;
 
+import com.google.firebase.auth.FirebaseAuthException;
 import com.sketchers.tripsketch_back.dto.SigninReqDto;
 import com.sketchers.tripsketch_back.dto.SignupReqDto;
 import com.sketchers.tripsketch_back.entity.User;
@@ -23,6 +24,7 @@ public class AuthService {
     private final AuthMapper authMapper;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final FirebaseService firebaseService;
 
     public boolean signup(SignupReqDto signupReqDto) {
         User user = signupReqDto.toUser();
@@ -49,9 +51,11 @@ public class AuthService {
         UsernamePasswordAuthenticationToken authenticationToken
                 = new UsernamePasswordAuthenticationToken(principalUser, null, principalUser.getAuthorities());
         String accessToken = jwtProvider.generateToken(authenticationToken);
+        String firebaseToken = firebaseService.createFirebaseTokenWithClaims(principalUser.getUser().getEmail(), false); //true: 관리자, false: 일반 사용자
 
         Map<String, String> response = new HashMap<>();
         response.put("accessToken", accessToken);
+        response.put("firebaseToken", firebaseToken);
         return response;
     }
 
