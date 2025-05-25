@@ -34,3 +34,4 @@ build/
 
 # Firebase 인증 정보는 노출되면 안 됨!
 src/main/resources/firebase/firebase-service-account.json
+src/main/resources/tripsketch-454909-9189a505ba8e.json
