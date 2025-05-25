@@ -56,6 +56,6 @@ public class TripController {
                 @RequestParam double destLng,
                 @RequestParam String mode
         ) {
-            return ResponseEntity.ok(tripService.getTravelTime(originLat, originLng, destLat, destLng, mode));
+            return ResponseEntity.ok(tripService.getTravelTimeWithComputeRoutes(originLat, originLng, destLat, destLng, mode));
         }
 }

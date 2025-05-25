@@ -2,17 +2,24 @@ package com.sketchers.tripsketch_back.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.auth.oauth2.GoogleCredentials;
 import com.sketchers.tripsketch_back.dto.trip.*;
 import com.sketchers.tripsketch_back.entity.*;
 import com.sketchers.tripsketch_back.exception.TripInsertException;
+import com.sketchers.tripsketch_back.google.GoogleTokenProvider;
 import com.sketchers.tripsketch_back.repository.TripMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.FileInputStream;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -26,6 +33,7 @@ public class TripService {
     private final ObjectMapper objectMapper;
     @Value("${google.places.api.key}")
     private String apiKey;
+    private final GoogleTokenProvider googleTokenProvider;
 
     @Transactional
     public boolean insertTrip(TripCreateReqDto tripCreateReqDto) {
@@ -195,37 +203,71 @@ public class TripService {
         }
     }
 
-    public long getTravelTime(
+    public long getTravelTimeWithComputeRoutes(
             double originLat, double originLng,
             double destLat, double destLng,
             String mode
     ) {
         try {
-            String url = String.format(
-                    "https://maps.googleapis.com/maps/api/distancematrix/json?" +
-                            "origins=%f,%f&destinations=%f,%f&mode=%s&departure_time=now&key=%s",
-                    originLat, originLng, destLat, destLng, mode, apiKey
-            );
-
-            ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
-            JsonNode root = objectMapper.readTree(response.getBody());
-
-            String status = root.path("status").asText();
-            if (!"OK".equals(status)) {
-                throw new IllegalStateException("Google API 응답 오류: " + status);
+            // ✅ 1. 동일 좌표 처리
+            if (originLat == destLat && originLng == destLng) {
+                return 0;
             }
 
-            long seconds = root.path("rows")
-                               .get(0)
-                               .path("elements")
-                               .get(0)
-                               .path("duration")
-                               .path("value")
-                               .asLong();
+            // ✅ 2. 액세스 토큰(OAuth2 방식)
+            String accessToken = googleTokenProvider.getAccessToken();
 
-            return seconds;
+            String url = "https://routes.googleapis.com/directions/v2:computeRoutes";
+
+            // ✅ 3. 헤더 설정
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(accessToken);
+            headers.set("X-Goog-FieldMask", "routes.duration,routes.distanceMeters");
+
+            // ✅ 4. 요청 본문 구성
+            ObjectNode requestBody = objectMapper.createObjectNode();
+
+            // travelMode, routingPreference, languageCode, units
+            requestBody.put("travelMode", mode.toUpperCase()); // 예: DRIVE
+            requestBody.put("routingPreference", "TRAFFIC_AWARE");
+            requestBody.put("languageCode", "ko"); // 한국어
+            requestBody.put("units", "METRIC");
+
+            // origin
+            ObjectNode originLatLng = objectMapper.createObjectNode();
+            originLatLng.put("latitude", originLat);
+            originLatLng.put("longitude", originLng);
+            ObjectNode origin = objectMapper.createObjectNode();
+            origin.set("location", objectMapper.createObjectNode().set("latLng", originLatLng));
+            requestBody.set("origin", origin);
+
+            // destination
+            ObjectNode destLatLng = objectMapper.createObjectNode();
+            destLatLng.put("latitude", destLat);
+            destLatLng.put("longitude", destLng);
+            ObjectNode destination = objectMapper.createObjectNode();
+            destination.set("location", objectMapper.createObjectNode().set("latLng", destLatLng));
+            requestBody.set("destination", destination);
+
+            // ✅ 5. 요청 전송
+            System.out.println(requestBody);
+            HttpEntity<String> entity = new HttpEntity<>(objectMapper.writeValueAsString(requestBody), headers);
+            ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
+
+            // ✅ 6. 응답 파싱
+            JsonNode root = objectMapper.readTree(response.getBody());
+            JsonNode routes = root.path("routes");
+            if (!routes.isArray() || routes.isEmpty()) {
+                throw new RuntimeException("❌ computeRoutes 결과 없음\n응답: " + response.getBody());
+            }
+
+            // ✅ 7. duration 추출
+            JsonNode durationNode = routes.get(0).path("duration").path("seconds");
+            return durationNode.asLong();
+
         } catch (Exception e) {
-            throw new RuntimeException("이동 시간 계산 실패: " + e.getMessage(), e);
+            throw new RuntimeException("🚨 computeRoutes 실패: " + e.getMessage(), e);
         }
     }
 
