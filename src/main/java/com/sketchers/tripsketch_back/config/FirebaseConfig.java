@@ -28,13 +28,14 @@ public class FirebaseConfig {
         Resource resource = resourceLoader.getResource(firebaseConfigPath);
         try (InputStream serviceAccount = resource.getInputStream()) {
             FirebaseOptions options = FirebaseOptions.builder()
-                    .setStorageBucket("tripsketch-6cb8b.firebasestorage.app")
+                    .setStorageBucket("tripsketch-6cb8b.appspot.com")
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .build();
 
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseApp.initializeApp(options);
             }
+            System.out.println("🔥 Firebase 초기화 완료!");
         }
     }
 }
