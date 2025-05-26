@@ -24,7 +24,7 @@ public class Trip {
     private String tripDestinationKoName;
     private String img;
 
-    public TripDto toMainTripRespDto() {
+    public TripDto toTripDto() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         return TripDto.builder()

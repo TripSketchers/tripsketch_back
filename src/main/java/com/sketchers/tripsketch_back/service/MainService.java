@@ -2,7 +2,7 @@ package com.sketchers.tripsketch_back.service;
 
 import com.sketchers.tripsketch_back.dto.PhotoRespDto;
 import com.sketchers.tripsketch_back.dto.TripDestinationRespDto;
-import com.sketchers.tripsketch_back.dto.main.TripRespDto;
+import com.sketchers.tripsketch_back.dto.trip.TripDto;
 import com.sketchers.tripsketch_back.entity.Photo;
 import com.sketchers.tripsketch_back.repository.MainMapper;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +31,8 @@ public class MainService {
                 .build();
     }
 
-    public TripRespDto getUpcomingTrip(int userId) {
-        return mainMapper.getUpcomingTrip(userId).toMainTripRespDto();
+    public TripDto getUpcomingTrip(int userId) {
+        return mainMapper.getUpcomingTrip(userId).toTripDto();
     }
 
     public List<PhotoRespDto> getRecentAlbums(int userId) {
