@@ -118,6 +118,8 @@ public class TripService {
             throw new IllegalArgumentException("Trip not found with id: " + tripId);
         }
 
+        TripDestination tripDestination = tripMapper.findTripDestinationByTdId(trip.getTripDestinationId());
+
         // 2. Stored Places 조회 (Place 정보 포함)
         List<PlaceStore> placeStores = tripMapper.findStoredPlaceByTripId(tripId);
         List<PlaceInfoDto> storedPlaces = placeStores.stream()
@@ -164,6 +166,7 @@ public class TripService {
         // 5. 최종 DTO 조립 및 반환
         return TripPlanRespDto.builder()
                 .trip(trip.toTripDto())
+                .tripDestination(tripDestination.toTripDestinationDto())
                 .storedPlaces(storedPlaces)
                 .storedAccommodations(storedAccommodations)
                 .tripSchedules(tripScheduleDtos)

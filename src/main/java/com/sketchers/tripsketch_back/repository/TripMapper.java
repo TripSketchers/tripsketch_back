@@ -21,4 +21,5 @@ public interface TripMapper {
     public Place findPlaceByPlaceStoreId(int placeStoreId);
     public int deletePlaceStoresByTripId(int tripId);
     public int deleteAccommodationsByTripId(int tripId);
+    public TripDestination findTripDestinationByTdId(int tripDestinationId);
 }

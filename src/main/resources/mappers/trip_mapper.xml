@@ -48,6 +48,7 @@
             start_date,
             end_date,
             ko_name as tripDestinationKoName,
+            tt.trip_destination_id,
             transport_type
         from
             trip_tb tt
@@ -93,6 +94,20 @@
             left outer join place_store_tb pst on(pst.place_id = pt.place_id)
         where
             place_store_id = #{placeStoreId}
+    </select>
+    <select id="findTripDestinationByTdId" resultType="com.sketchers.tripsketch_back.entity.TripDestination">
+        select
+            en_name,
+            ko_name,
+            low_lat,
+            low_lng,
+            high_lat,
+            high_lng,
+            img
+        from
+            trip_destination_tb
+        where
+            trip_destination_id = #{tripDestinationId}
     </select>
 
     <insert id="insertPlace" useGeneratedKeys="true" keyProperty="placeId">
