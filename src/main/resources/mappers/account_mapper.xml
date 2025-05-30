@@ -66,4 +66,86 @@
                 ELSE end_date
             END DESC  -- 과거 일정만 DESC로 재조정
     </select>
+    <select id="findOwnerByTripId" resultType="com.sketchers.tripsketch_back.entity.User" parameterType="int">
+        select
+            ut.user_id, ut.email
+        from user_tb ut
+        	left outer join trip_tb tt on(tt.user_id = ut.user_id)
+        where
+            tt.trip_id = #{tripId};
+    </select>
+    <select id="findUserIdByEmails" resultType="com.sketchers.tripsketch_back.entity.User" parameterType="list" >
+        select email, user_id
+        from user_tb
+        WHERE
+            email IN
+            <foreach item="email" collection="list" open="(" separator="," close=")">
+                #{email}
+            </foreach>
+    </select>
+    <insert id="insertTripShare" parameterType="com.sketchers.tripsketch_back.entity.TripShare">
+        INSERT INTO trip_share_tb (
+            share_id,
+            trip_id,
+            shared_by_user_id,
+            shared_with_user_id,
+            email
+        )
+        VALUES (
+            0,
+            #{tripId},
+            #{sharedByUserId},
+            #{sharedWithUserId},
+            #{email}
+        )
+    </insert>
+    <select id="getSharedUsers" resultType="com.sketchers.tripsketch_back.entity.TripShare" >
+        select
+            *
+        from
+            trip_share_tb
+        where
+            shared_by_user_id = #{userId}
+            and trip_id = #{tripId}
+    </select>
+    <delete id="cancelShare" parameterType="int">
+        delete from trip_share_tb
+        where
+            shared_by_user_id = #{userId}
+            and trip_id = #{tripId}
+            and share_id = #{shareId}
+    </delete>
+    <select id="getReceivedInvitations" resultType="com.sketchers.tripsketch_back.entity.Trip">
+        select
+            tt.trip_id,
+            tt.user_id,
+            tt.title,
+            tt.start_date,
+            tt.end_date,
+            tdt.ko_name as tripDestinationKoName
+        from trip_tb tt
+            left outer join trip_destination_tb tdt on(tdt.trip_destination_id = tt.trip_destination_id)
+        	left outer join trip_share_tb tst on (tst.trip_id = tt.trip_id)
+        where tst.email = #{email}
+        ORDER BY
+            CASE
+                WHEN NOW() >= start_date AND end_date >= NOW() THEN 0  -- 여행 중
+                WHEN start_date = CURRENT_DATE THEN 1                  -- D-Day
+                WHEN start_date > NOW() THEN 2                         -- 미래
+                ELSE 3                                                 -- 과거
+            END,
+            CASE
+                WHEN NOW() >= start_date AND end_date >= NOW() THEN start_date  -- 여행 중: 시작 빠른 순
+                WHEN start_date = CURRENT_DATE THEN start_date                  -- D-Day: 오늘
+                WHEN start_date > NOW() THEN start_date                         -- 미래: 오름차순
+                ELSE end_date                                                   -- 과거: 종료일 기준 내림차순
+            END
+            ASC,  -- ASC지만 마지막은 DESC로 조절해야 함
+            CASE
+                WHEN start_date > NOW() THEN NULL
+                WHEN start_date = CURRENT_DATE THEN NULL
+                WHEN NOW() >= start_date AND end_date >= NOW() THEN NULL
+                ELSE end_date
+            END DESC  -- 과거 일정만 DESC로 재조정;
+    </select>
 </mapper>

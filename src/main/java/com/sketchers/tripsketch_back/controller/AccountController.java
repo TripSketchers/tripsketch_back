@@ -1,13 +1,16 @@
 package com.sketchers.tripsketch_back.controller;
 
 import com.sketchers.tripsketch_back.aop.annotation.ValidAop;
+import com.sketchers.tripsketch_back.dto.Mypage.ShareTripReqDto;
 import com.sketchers.tripsketch_back.dto.PasswordChangeReqDto;
 import com.sketchers.tripsketch_back.dto.PrincipalRespDto;
+import com.sketchers.tripsketch_back.dto.trip.create.TripCreateReqDto;
 import com.sketchers.tripsketch_back.entity.User;
 import com.sketchers.tripsketch_back.security.PrincipalUser;
 import com.sketchers.tripsketch_back.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -65,5 +68,29 @@ public class AccountController {
     @DeleteMapping("/api/account/trip/{tripId}")
     public ResponseEntity<?> deleteTrip(@PathVariable int tripId) {
         return ResponseEntity.ok(accountService.deleteTrip(tripId));
+    }
+
+    @PostMapping("/api/account/trips/{tripId}/share")
+    public ResponseEntity<?> shareTrip(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId, @Valid @RequestBody ShareTripReqDto shareTripReqDto) {
+        int userId = principalUser.getUser().getUserId();
+        return ResponseEntity.ok(accountService.shareTrip(userId, tripId, shareTripReqDto));
+    }
+
+    @GetMapping("/api/account/trips/{tripId}/share")
+    public ResponseEntity<?> getSharedUsers(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId) {
+        int userId = principalUser.getUser().getUserId();
+        return ResponseEntity.ok(accountService.getSharedUsers(userId, tripId));
+    }
+
+    @DeleteMapping("/api/account/trips/{tripId}/shares/{shareId}")
+    public ResponseEntity<?> cancelShare(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId, @PathVariable int shareId) {
+        int userId = principalUser.getUser().getUserId();
+        return ResponseEntity.ok(accountService.cancelShare(userId, tripId, shareId));
+    }
+
+    @GetMapping("/api/account/invitations")
+    public ResponseEntity<?> getReceivedInvitations(@AuthenticationPrincipal PrincipalUser principalUser) {
+        String email = principalUser.getUser().getEmail();
+        return ResponseEntity.ok(accountService.getReceivedInvitations(email));
     }
 }
