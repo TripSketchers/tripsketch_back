@@ -1,5 +1,6 @@
 package com.sketchers.tripsketch_back.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sketchers.tripsketch_back.dto.trip.TripScheduleDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Time;
+import java.time.LocalTime;
 import java.util.Date;
 
 @Builder
@@ -16,10 +18,12 @@ import java.util.Date;
 public class TripSchedule {
     private int tripScheduleId;
     private int tripId;
-    private int placeStoreId;
+    private int placeId;
     private Date date;
-    private Time startTime;
-    private Time endTime;
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime startTime;
+    @JsonFormat(pattern = "HH:mm")
+    private LocalTime endTime;
     private int stayTime;
     private int travelTime;
     private int position;
@@ -29,7 +33,7 @@ public class TripSchedule {
         return TripScheduleDto.builder()
                 .tripScheduleId(tripScheduleId)
                 .tripId(tripId)
-                .placeStoreId(placeStoreId)
+                .placeId(placeId)
                 .date(date)
                 .startTime(startTime)
                 .endTime(endTime)

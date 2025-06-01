@@ -2,6 +2,7 @@ package com.sketchers.tripsketch_back.controller;
 
 import com.sketchers.tripsketch_back.dto.trip.StoredPlaceUpdateReqDto;
 import com.sketchers.tripsketch_back.dto.trip.TripCreateReqDto;
+import com.sketchers.tripsketch_back.dto.trip.TripScheduleDto;
 import com.sketchers.tripsketch_back.service.TripService;
 import com.sketchers.tripsketch_back.security.PrincipalUser;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -57,5 +59,11 @@ public class TripController {
             @RequestParam String mode
     ) {
         return ResponseEntity.ok(tripService.getTravelTimeWithRoutesAPI(originLat, originLng, destLat, destLng, mode));
+    }
+
+    @PostMapping("/api/trips/{tripId}/schedules")
+    public ResponseEntity<?> saveTripSchedules(@PathVariable int tripId,
+                                               @RequestBody List<TripScheduleDto> schedules) {
+        return ResponseEntity.ok(tripService.saveTripSchedules(tripId, schedules));
     }
 }

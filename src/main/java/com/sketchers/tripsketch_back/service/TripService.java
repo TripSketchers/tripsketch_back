@@ -2,7 +2,6 @@ package com.sketchers.tripsketch_back.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.sketchers.tripsketch_back.dto.trip.*;
 import com.sketchers.tripsketch_back.entity.*;
 import com.sketchers.tripsketch_back.exception.TripInsertException;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.HttpHeaders;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -141,11 +141,11 @@ public class TripService {
         List<TripSchedule> tripSchedules = tripMapper.findTripScheduleByTripId(tripId);
         List<TripScheduleDto> tripScheduleDtos = tripSchedules.stream()
                 .map(ts -> {
-                    Place place = tripMapper.findPlaceByPlaceStoreId(ts.getPlaceStoreId());
+                    Place place = tripMapper.findPlaceByPlaceId(ts.getPlaceId());
                     return TripScheduleDto.builder()
                             .tripScheduleId(ts.getTripScheduleId())
                             .tripId(ts.getTripId())
-                            .placeStoreId(ts.getPlaceStoreId())
+                            .placeId(ts.getPlaceId())
                             .date(ts.getDate())
                             .startTime(ts.getStartTime())
                             .endTime(ts.getEndTime())
@@ -204,26 +204,26 @@ public class TripService {
         try {
             // JSON Body를 직접 문자열로 구성 (proto3 JSON 규칙 준수)
             String body = String.format("""
-            {
-              "origin": {
-                "location": {
-                  "latLng": {
-                    "latitude": %f,
-                    "longitude": %f
-                  }
-                }
-              },
-              "destination": {
-                "location": {
-                  "latLng": {
-                    "latitude": %f,
-                    "longitude": %f
-                  }
-                }
-              },
-              "travelMode": "%s"
-            }
-            """, originLat, originLng, destLat, destLng, mode);
+                    {
+                      "origin": {
+                        "location": {
+                          "latLng": {
+                            "latitude": %f,
+                            "longitude": %f
+                          }
+                        }
+                      },
+                      "destination": {
+                        "location": {
+                          "latLng": {
+                            "latitude": %f,
+                            "longitude": %f
+                          }
+                        }
+                      },
+                      "travelMode": "%s"
+                    }
+                    """, originLat, originLng, destLat, destLng, mode);
 
             // 헤더 설정
             HttpHeaders headers = new HttpHeaders();
@@ -242,9 +242,6 @@ public class TripService {
 
             // 응답 파싱
             JsonNode root = objectMapper.readTree(response.getBody());
-
-            System.out.println(root);
-
             String durationStr = root.path("routes").get(0).path("duration").asText(); // "1018s"
             int seconds = Integer.parseInt(durationStr.replace("s", ""));
 
@@ -259,6 +256,15 @@ public class TripService {
             e.printStackTrace();
             return -1;
         }
+    }
+
+    @Transactional
+    public boolean saveTripSchedules(int tripId, List<TripScheduleDto> schedules) {
+        tripMapper.deleteTripSchedules(tripId);
+        List<TripSchedule> tripSchedules = schedules.stream()
+                .map(schedule -> schedule.toTripSchedule())
+                .collect(Collectors.toList());
+        return tripMapper.insertTripSchedules(tripSchedules) > 0;
     }
 
 }
