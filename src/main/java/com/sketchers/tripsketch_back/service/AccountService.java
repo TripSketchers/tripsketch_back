@@ -1,11 +1,19 @@
 package com.sketchers.tripsketch_back.service;
 
+import com.sketchers.tripsketch_back.dto.Mypage.ShareTripReqDto;
+import com.sketchers.tripsketch_back.dto.Mypage.ShareTripRespDto;
+import com.sketchers.tripsketch_back.dto.Mypage.TripShareDto;
 import com.sketchers.tripsketch_back.dto.PasswordChangeReqDto;
+import com.sketchers.tripsketch_back.dto.TripDto;
 import com.sketchers.tripsketch_back.dto.TripRespDto;
+import com.sketchers.tripsketch_back.entity.Photo;
 import com.sketchers.tripsketch_back.entity.Trip;
+import com.sketchers.tripsketch_back.entity.TripShare;
 import com.sketchers.tripsketch_back.entity.User;
 import com.sketchers.tripsketch_back.exception.AuthMailException;
 import com.sketchers.tripsketch_back.exception.SendMailException;
+import com.sketchers.tripsketch_back.exception.TripNotFoundException;
+import com.sketchers.tripsketch_back.exception.UnauthorizedAccessException;
 import com.sketchers.tripsketch_back.jwt.JwtProvider;
 import com.sketchers.tripsketch_back.repository.AccountMapper;
 import com.sketchers.tripsketch_back.repository.AuthMapper;
@@ -20,8 +28,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.mail.internet.MimeMessage;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -109,14 +117,144 @@ public class AccountService {
         return accountMapper.updatePassword(newUser);
     }
 
-    public TripRespDto getTrips() {
+    public List<TripDto> getTrips() {
         PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         int userId = principalUser.getUser().getUserId();
+
         List<Trip> trips = accountMapper.findTripsByUserId(userId);
-        return new TripRespDto(trips);
+        return trips.stream()
+                .map(Trip::toTripDto)
+                .collect(Collectors.toList());
     }
 
     public int deleteTrip(int tripId) {
         return accountMapper.deleteTrip(tripId);
+    }
+
+    @Transactional
+    public ShareTripRespDto shareTrip(int userId, int tripId, ShareTripReqDto ShareTripReqDto){
+
+        // 1. 여행 소유자 검증
+        User owner = accountMapper.findOwnerByTripId(tripId)
+                    .orElseThrow(() -> new TripNotFoundException(tripId));
+
+        // 1-1. 현재 사용자와 소유자 일치 여부 확인
+        if (owner.getUserId() != userId) {
+            throw new UnauthorizedAccessException("해당 여행을 공유할 권한이 없습니다.");
+        }
+
+        // 2. 이미 공유된 이메일 목록 조회
+        Set<String> alreadySharedEmails = getSharedUsers(userId, tripId)
+            .stream()
+            .map(TripShareDto::getEmail)
+            .collect(Collectors.toSet());
+
+        // 3. 중복 제거된 실제로 공유할 이메일만 추리기
+        List<String> emails = ShareTripReqDto.getEmails()
+            .stream()
+            .filter(email -> !alreadySharedEmails.contains(email))
+            .collect(Collectors.toList());
+        System.out.println(emails);
+
+        String message = ShareTripReqDto.getMessage();
+
+        // 4. 유저 정보 bulk 조회 (이메일에 해당하는 유저 정보 조회 - 가입자만 나옴)
+        List<User> emailIdPairs = accountMapper.findUserIdByEmails(emails);
+        Map<String, Integer> emailToUserId = emailIdPairs.stream()
+            .collect(Collectors.toMap(User::getEmail, User::getUserId));
+
+        // 5. 이메일 전송 결과 수집
+        Map<String, Boolean> emailSendResults = sendInvitationEmail(emails, owner.getEmail(), message);
+
+        // 6. 전송 성공 이메일만 DB에 저장
+        List<String> failedEmails = new ArrayList<>();
+
+        for (String email : emails) {
+            if (Boolean.TRUE.equals(emailSendResults.get(email))) {
+                Integer sharedWithUserId = emailToUserId.get(email); // 비가입자는 null
+
+                TripShare share = TripShare.builder()
+                    .tripId(tripId)
+                    .sharedByUserId(userId)
+                    .sharedWithUserId(sharedWithUserId)
+                    .email(email)
+                    .build();
+
+                accountMapper.insertTripShare(share);
+            } else {
+                failedEmails.add(email);
+            }
+        }
+        return new ShareTripRespDto(emails.size() - failedEmails.size(), failedEmails);
+    }
+
+    public Map<String, Boolean> sendInvitationEmail(List<String> toEmails, String fromEmail, String message) {
+        Map<String, Boolean> resultMap = new HashMap<>();
+
+        for (String toEmail : toEmails) {
+            try {
+                MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+
+                helper.setTo(toEmail);
+                helper.setSubject("여행 공유 초대장");
+
+                String htmlContent = "<div style=\"font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 700px; margin: auto; padding: 30px; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9;\">" +
+                        "<h2 style=\"color: #2c3e50; font-size: 24px; text-align: center;\">" +
+                        fromEmail + "님이 당신을 여행에 초대하셨습니다! ✈️</h2>" +
+
+                        "<p style=\"font-size: 16px; color: #555; margin-top: 30px;\">" +
+                        "안녕하세요, " + toEmail + "님!<br><br>" +
+                        fromEmail + "님이 아래의 메시지와 함께 여행 초대를 보내셨습니다.</p>" +
+
+                        "<div style=\"background-color: #ffffff; padding: 20px; margin: 20px 0; border-left: 4px solid #4CAF50;\">" +
+                        "<p style=\"margin: 0; font-style: italic; color: #333;\">" + message + "</p>" +
+                        "</div>" +
+
+                        "<p style=\"font-size: 16px; color: #555;\">아래 버튼을 클릭하여 초대장을 확인해 보세요:</p>" +
+
+                        "<div style=\"text-align: center; margin-top: 20px;\">" +
+                        "<a href=\"http://localhost:3000/account/mypage?selectedTab=share\" " +
+                        "style=\"display: inline-block; padding: 12px 24px; background-color: #4CAF50; color: white; text-decoration: none; font-weight: bold; border-radius: 5px; font-size: 16px;\">" +
+                        "초대장 확인하기</a>" +
+                        "</div>" +
+
+                        "<p style=\"font-size: 14px; color: #999; margin-top: 40px; text-align: center;\">" +
+                        "이 이메일은 여행 공유 서비스에서 발송되었습니다.</p>" +
+                        "</div>";
+
+                helper.setText(htmlContent, true); // true → HTML 형식 사용
+
+                javaMailSender.send(mimeMessage);
+                resultMap.put(toEmail, true);
+            } catch (Exception e) {
+                resultMap.put(toEmail, false);
+            }
+        }
+        return resultMap; // key: 이메일, value: 성공 여부
+    }
+
+    public List<TripShareDto> getSharedUsers(int userId, int tripId) {
+        List<TripShare> sharedUsers = accountMapper.getSharedUsers(userId, tripId);
+        return sharedUsers.stream()
+                .map(TripShare::toTripShareDto)
+                .collect(Collectors.toList());
+    }
+
+    public boolean cancelShare(int userId, int tripId, int shareId) {
+        return accountMapper.cancelShare(userId, tripId, shareId);
+    }
+
+    public List<TripRespDto> getReceivedInvitations(String email) {
+        System.out.println(email);
+        return accountMapper.getReceivedInvitations(email);
+    }
+
+    public boolean acceptTripInvitation(int shareId) {
+        return accountMapper.acceptTripInvitation(shareId);
+    }
+
+    public boolean declineTripInvitation(int shareId) {
+        return accountMapper.declineTripInvitation(shareId);
     }
 }
