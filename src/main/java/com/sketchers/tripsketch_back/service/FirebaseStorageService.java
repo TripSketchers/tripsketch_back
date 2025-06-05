@@ -19,7 +19,6 @@ public class FirebaseStorageService {
             // Firebase SDK에서 StorageClient 사용
             StorageClient storageClient = StorageClient.getInstance();
             Blob blob = storageClient.bucket(bucketName).get(filePath);
-            System.out.println(blob);
             if (blob != null) {
                 boolean deleted = blob.delete();
                 if (!deleted) {

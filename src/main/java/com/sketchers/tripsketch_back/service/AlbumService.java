@@ -61,7 +61,6 @@ public class AlbumService {
                 albumMapper.createTripAlbum(request);
 
                 albumId = request.getAlbumId();  // 여기서 새로 생성된 albumId 가져옴
-                System.out.println("새로 생성된 albumId: " + albumId);
 
                 if (albumId == 0) {
                     throw new RuntimeException("앨범 생성 실패");

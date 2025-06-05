@@ -154,7 +154,6 @@ public class AccountService {
             .stream()
             .filter(email -> !alreadySharedEmails.contains(email))
             .collect(Collectors.toList());
-        System.out.println(emails);
 
         String message = ShareTripReqDto.getMessage();
 
@@ -173,18 +172,22 @@ public class AccountService {
             if (Boolean.TRUE.equals(emailSendResults.get(email))) {
                 Integer sharedWithUserId = emailToUserId.get(email); // 비가입자는 null
 
-                TripShare share = TripShare.builder()
+                TripShare.TripShareBuilder builder = TripShare.builder()
                     .tripId(tripId)
                     .sharedByUserId(userId)
-                    .sharedWithUserId(sharedWithUserId)
-                    .email(email)
-                    .build();
+                    .email(email);
 
+                if (sharedWithUserId != null) {
+                    builder.sharedWithUserId(sharedWithUserId); // 가입자
+                }
+
+                TripShare share = builder.build();
                 accountMapper.insertTripShare(share);
             } else {
                 failedEmails.add(email);
             }
         }
+
         return new ShareTripRespDto(emails.size() - failedEmails.size(), failedEmails);
     }
 
@@ -246,7 +249,6 @@ public class AccountService {
     }
 
     public List<TripRespDto> getReceivedInvitations(String email) {
-        System.out.println(email);
         return accountMapper.getReceivedInvitations(email);
     }
 
