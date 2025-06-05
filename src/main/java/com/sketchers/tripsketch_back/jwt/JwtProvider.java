@@ -46,7 +46,6 @@ public class JwtProvider {
             return Jwts.parserBuilder().setSigningKey(key).build()
                     .parseClaimsJws(token).getBody();
         } catch (JwtException e) {
-            System.out.println(e.getClass() + ": " + e.getMessage());
             return null;
         }
     }

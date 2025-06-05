@@ -8,4 +8,5 @@ public interface AuthMapper {
     public User findUserByEmail(String email);
     public Boolean checkDuplicate(String email);
     public int saveUser(User user);
+    public int updateTripShareUserId(String email, int userId);
 }

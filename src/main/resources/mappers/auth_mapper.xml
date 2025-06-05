@@ -11,7 +11,7 @@
         <result property="provider" column="provider"/>
         <result property="enabled" column="enabled"/>
     </resultMap>
-    <insert id="saveUser">
+    <insert id="saveUser" useGeneratedKeys="true" keyProperty="userId">
         insert into user_tb
         values(
             0,
@@ -56,4 +56,9 @@
         where
             email = #{email}
     </select>
+    <update id="updateTripShareUserId">
+        update trip_share_tb
+        set shared_with_user_id = #{userId}
+        where email = #{email}
+    </update>
 </mapper>

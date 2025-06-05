@@ -34,7 +34,12 @@ public class AuthService {
             throw new DuplicateException(errorMap);
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return authMapper.saveUser(user) > 0;
+
+        int result = authMapper.saveUser(user);
+        if (result == 0) return false;
+        System.out.println(user.getUserId());
+        authMapper.updateTripShareUserId(user.getEmail(), user.getUserId());
+        return true;
     }
 
     public Map<String, String> signin(SigninReqDto signinReqDto) {
@@ -51,8 +56,8 @@ public class AuthService {
         UsernamePasswordAuthenticationToken authenticationToken
                 = new UsernamePasswordAuthenticationToken(principalUser, null, principalUser.getAuthorities());
         String accessToken = jwtProvider.generateToken(authenticationToken);
-        String firebaseToken = firebaseService.createFirebaseTokenWithClaims(principalUser.getUser().getEmail(), false); //true: 관리자, false: 일반 사용자
-
+        String firebaseToken = firebaseService.createFirebaseTokenWithClaims(principalUser.getUser().getEmail());
+        System.out.println("firebaseToken:" + firebaseToken);
         Map<String, String> response = new HashMap<>();
         response.put("accessToken", accessToken);
         response.put("firebaseToken", firebaseToken);
