@@ -1,11 +1,12 @@
-package com.sketchers.tripsketch_back.entity;
+package com.sketchers.tripsketch_back.dto;
 
-import com.sketchers.tripsketch_back.dto.TripDto;
+import com.sketchers.tripsketch_back.entity.Trip;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -13,29 +14,30 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class Trip {
+public class TripDto {
     private int tripId;
     private int userId;
     private String title;
-    private Date startDate;
-    private Date endDate;
+    private String startDate;
+    private String endDate;
     private int tripDestinationId;
     private int transportType;
     private String tripDestinationKoName;
     private String img;
 
-    public TripDto toTripDto() {
+    public Trip toTrip() throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date start = sdf.parse(startDate);
+        Date end = sdf.parse(endDate);
 
-        return TripDto.builder()
+        return Trip.builder()
                 .tripId(tripId)
+                .userId(userId)
                 .title(title)
-                .startDate(sdf.format(startDate))
-                .endDate(sdf.format(endDate))
+                .startDate(start)
+                .endDate(end)
                 .tripDestinationId(tripDestinationId)
                 .transportType(transportType)
-                .tripDestinationKoName(tripDestinationKoName)
-                .img(img)
                 .build();
     }
 }

@@ -1,5 +1,6 @@
 package com.sketchers.tripsketch_back.repository;
 
+import com.sketchers.tripsketch_back.dto.TripRespDto;
 import com.sketchers.tripsketch_back.entity.Trip;
 import com.sketchers.tripsketch_back.entity.TripShare;
 import com.sketchers.tripsketch_back.entity.User;
@@ -23,5 +24,7 @@ public interface AccountMapper {
     public boolean insertTripShare(TripShare tripShare);
     public List<TripShare> getSharedUsers(int userId, int tripId);
     public boolean cancelShare(int userId, int tripId, int shareId);
-    public List<Trip> getReceivedInvitations(String email);
+    public List<TripRespDto> getReceivedInvitations(String email);
+    public boolean acceptTripInvitation(int shareId);
+    public boolean declineTripInvitation(int shareId);
 }

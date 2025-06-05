@@ -93,4 +93,18 @@ public class AccountController {
         String email = principalUser.getUser().getEmail();
         return ResponseEntity.ok(accountService.getReceivedInvitations(email));
     }
+
+    // 공유 초대 수락 -> share_tb의 status="accept"로 변경
+    @PutMapping("/api/account/invitations/{shareId}/accept")
+    public ResponseEntity<?> acceptTripInvitation(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int shareId) {
+        int userId = principalUser.getUser().getUserId();
+        return ResponseEntity.ok(accountService.acceptTripInvitation(shareId));
+    }
+
+    // 공유 초대 거절 -> share_tb에서 삭제 처리
+    @DeleteMapping("/api/account/invitations/{shareId}")
+    public ResponseEntity<?> declineTripInvitation(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int shareId) {
+        int userId = principalUser.getUser().getUserId();
+        return ResponseEntity.ok(accountService.declineTripInvitation(shareId));
+    }
 }

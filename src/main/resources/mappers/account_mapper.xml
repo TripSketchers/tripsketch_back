@@ -3,6 +3,20 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.sketchers.tripsketch_back.repository.AccountMapper">
+    <resultMap id="TripWithShareInfoMap" type="com.sketchers.tripsketch_back.dto.TripRespDto">
+        <result column="share_id" property="shareId"/>
+        <result column="shared_by_user_email" property="sharedByUserEmail"/>
+        <result column="status" property="status"/>
+        <association property="tripList" javaType="com.sketchers.tripsketch_back.entity.Trip">
+            <id column="trip_id" property="tripId"/>
+            <result column="user_id" property="userId"/>
+            <result column="title" property="title"/>
+            <result column="start_date" property="startDate"/>
+            <result column="end_date" property="endDate"/>
+            <result column="tripDestinationKoName" property="tripDestinationKoName"/>
+        </association>
+    </resultMap>
+
     <update id="updateEnabledToEmail">
         update
             user_tb
@@ -115,17 +129,21 @@
             and trip_id = #{tripId}
             and share_id = #{shareId}
     </delete>
-    <select id="getReceivedInvitations" resultType="com.sketchers.tripsketch_back.entity.Trip">
+    <select id="getReceivedInvitations" resultMap="TripWithShareInfoMap">
         select
             tt.trip_id,
             tt.user_id,
             tt.title,
             tt.start_date,
             tt.end_date,
-            tdt.ko_name as tripDestinationKoName
+            tdt.ko_name as tripDestinationKoName,
+            tst.share_id,
+            ut.email as shared_by_user_email,
+            tst.status
         from trip_tb tt
             left outer join trip_destination_tb tdt on(tdt.trip_destination_id = tt.trip_destination_id)
         	left outer join trip_share_tb tst on (tst.trip_id = tt.trip_id)
+            left outer join user_tb ut on(ut.user_id = tst.shared_by_user_id)
         where tst.email = #{email}
         ORDER BY
             CASE
@@ -148,4 +166,13 @@
                 ELSE end_date
             END DESC  -- 과거 일정만 DESC로 재조정;
     </select>
+    <update id="acceptTripInvitation" >
+        update trip_share_tb
+        set status="accept"
+        where share_id = #{shareId}
+    </update>
+    <delete id="declineTripInvitation">
+        delete from trip_share_tb
+        where share_id = #{shareId}
+    </delete>
 </mapper>

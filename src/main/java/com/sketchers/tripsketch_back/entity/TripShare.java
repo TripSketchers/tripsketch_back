@@ -10,6 +10,8 @@ import java.sql.Timestamp;
 
 @Builder
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class TripShare {
     private int shareId;
     private int tripId;
@@ -17,7 +19,7 @@ public class TripShare {
     private int sharedWithUserId;
     private String email;
     private Timestamp sharedAt;
-    private boolean status;
+    private String status;
 
     public TripShareDto toTripShareDto() {
         return TripShareDto.builder()

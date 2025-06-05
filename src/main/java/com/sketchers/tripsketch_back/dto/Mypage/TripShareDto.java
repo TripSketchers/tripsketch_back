@@ -19,7 +19,7 @@ public class TripShareDto {
     private int sharedWithUserId;
     private String email;
     private Timestamp sharedAt;
-    private boolean status;
+    private String status;
 
     public TripShare toTripShare() {
         return TripShare.builder()

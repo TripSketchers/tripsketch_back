@@ -4,6 +4,7 @@ import com.sketchers.tripsketch_back.dto.Mypage.ShareTripReqDto;
 import com.sketchers.tripsketch_back.dto.Mypage.ShareTripRespDto;
 import com.sketchers.tripsketch_back.dto.Mypage.TripShareDto;
 import com.sketchers.tripsketch_back.dto.PasswordChangeReqDto;
+import com.sketchers.tripsketch_back.dto.TripDto;
 import com.sketchers.tripsketch_back.dto.TripRespDto;
 import com.sketchers.tripsketch_back.entity.Photo;
 import com.sketchers.tripsketch_back.entity.Trip;
@@ -116,11 +117,14 @@ public class AccountService {
         return accountMapper.updatePassword(newUser);
     }
 
-    public TripRespDto getTrips() {
+    public List<TripDto> getTrips() {
         PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         int userId = principalUser.getUser().getUserId();
+
         List<Trip> trips = accountMapper.findTripsByUserId(userId);
-        return new TripRespDto(trips);
+        return trips.stream()
+                .map(Trip::toTripDto)
+                .collect(Collectors.toList());
     }
 
     public int deleteTrip(int tripId) {
@@ -241,8 +245,16 @@ public class AccountService {
         return accountMapper.cancelShare(userId, tripId, shareId);
     }
 
-    public TripRespDto getReceivedInvitations(String email) {
-        List<Trip> receivedInvitations = accountMapper.getReceivedInvitations(email);
-        return new TripRespDto(receivedInvitations);
+    public List<TripRespDto> getReceivedInvitations(String email) {
+        System.out.println(email);
+        return accountMapper.getReceivedInvitations(email);
+    }
+
+    public boolean acceptTripInvitation(int shareId) {
+        return accountMapper.acceptTripInvitation(shareId);
+    }
+
+    public boolean declineTripInvitation(int shareId) {
+        return accountMapper.declineTripInvitation(shareId);
     }
 }
