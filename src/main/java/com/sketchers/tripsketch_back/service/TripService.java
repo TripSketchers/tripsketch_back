@@ -153,6 +153,7 @@ public class TripService {
                             .travelTime(ts.getTravelTime())
                             .position(ts.getPosition())
                             .isLocked(ts.getIsLocked())
+                            .isAccommodation(ts.getIsAccommodation())
                             .place(place != null ? place.toPlaceInfoDto() : null)
                             .build();
                 })

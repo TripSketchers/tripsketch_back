@@ -143,7 +143,8 @@
         stay_time,
         is_locked,
         travel_time,
-        position
+        position,
+        is_accommodation
         )
         VALUES
         <foreach collection="tripSchedules" item="s" separator=",">
@@ -157,7 +158,8 @@
             #{s.stayTime},
             #{s.isLocked},
             #{s.travelTime},
-            #{s.position}
+            #{s.position},
+            #{s.isAccommodation}
             )
         </foreach>
     </insert>

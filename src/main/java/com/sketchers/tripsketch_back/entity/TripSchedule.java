@@ -19,6 +19,7 @@ public class TripSchedule {
     private int tripScheduleId;
     private int tripId;
     private int placeId;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private Date date;
     @JsonFormat(pattern = "HH:mm")
     private LocalTime startTime;
@@ -28,6 +29,7 @@ public class TripSchedule {
     private int travelTime;
     private int position;
     private int isLocked;
+    private int isAccommodation;
 
     public TripScheduleDto toTripScheduleDto() {
         return TripScheduleDto.builder()
@@ -41,6 +43,7 @@ public class TripSchedule {
                 .travelTime(travelTime)
                 .position(position)
                 .isLocked(isLocked)
+                .isAccommodation(isAccommodation)
                 .build();
     }
 }
