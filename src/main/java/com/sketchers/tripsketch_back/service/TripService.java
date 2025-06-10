@@ -8,13 +8,10 @@ import com.sketchers.tripsketch_back.exception.TripInsertException;
 import com.sketchers.tripsketch_back.repository.TripMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.http.HttpHeaders;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,7 +24,9 @@ public class TripService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
     @Value("${google.places.api.key}")
-    private String apiKey;
+    private String googleApiKey;
+    @Value("${kakao.rest.api.key}")
+    private String kakaoApiKey;
 
     @Transactional
     public boolean insertTrip(TripCreateReqDto tripCreateReqDto) {
@@ -201,9 +200,17 @@ public class TripService {
         }
     }
 
+    private boolean isKorea(double lat, double lng) {
+        return lat >= 33.0 && lat <= 39.0 && lng >= 124.0 && lng <= 132.0;
+    }
+
+
     public int getTravelTimeWithRoutesAPI(double originLat, double originLng, double destLat, double destLng, String mode) {
         try {
             // JSON Body를 직접 문자열로 구성 (proto3 JSON 규칙 준수)
+            if ("DRIVE".equalsIgnoreCase(mode) && isKorea(originLat, originLng)) {
+                return getTravelTimeFromKakao(originLat, originLng, destLat, destLng);
+            }
             String body = String.format("""
                     {
                       "origin": {
@@ -229,7 +236,7 @@ public class TripService {
             // 헤더 설정
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("X-Goog-Api-Key", apiKey); // 누나 API 키
+            headers.set("X-Goog-Api-Key", googleApiKey);
             headers.set("X-Goog-FieldMask", "routes.duration"); // 최소 응답 설정
 
             HttpEntity<String> request = new HttpEntity<>(body, headers);
@@ -258,6 +265,32 @@ public class TripService {
             return -1;
         }
     }
+
+    private int getTravelTimeFromKakao(double originLat, double originLng, double destLat, double destLng) {
+        try {
+            String url = String.format("https://apis-navi.kakaomobility.com/v1/directions?origin=%f,%f&destination=%f,%f",
+                    originLng, originLat, destLng, destLat);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "KakaoAK " + kakaoApiKey);
+            HttpEntity<String> request = new HttpEntity<>(headers);
+
+            ResponseEntity<String> response = restTemplate.exchange(
+                    url, HttpMethod.GET, request, String.class);
+
+            JsonNode root = objectMapper.readTree(response.getBody());
+            JsonNode durationNode = root.path("routes").get(0).path("summary").path("duration");
+
+            if (durationNode.isMissingNode()) return -1;
+
+            return durationNode.asInt();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return -1;
+        }
+    }
+
 
     @Transactional
     public boolean saveTripSchedules(int tripId, List<TripScheduleDto> schedules) {
