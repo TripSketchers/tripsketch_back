@@ -204,13 +204,19 @@ public class TripService {
         return lat >= 33.0 && lat <= 39.0 && lng >= 124.0 && lng <= 132.0;
     }
 
-
     public int getTravelTimeWithRoutesAPI(double originLat, double originLng, double destLat, double destLng, String mode) {
         try {
-            // JSON Body를 직접 문자열로 구성 (proto3 JSON 규칙 준수)
+            // 출발지와 도착지가 같은 경우: 이동 시간 0 반환
+            if (Double.compare(originLat, destLat) == 0 && Double.compare(originLng, destLng) == 0) {
+                return 0;
+            }
+
+            // 한국 내 차량 이동이면 카카오 API 우선 사용
             if ("DRIVE".equalsIgnoreCase(mode) && isKorea(originLat, originLng)) {
                 return getTravelTimeFromKakao(originLat, originLng, destLat, destLng);
             }
+
+            // JSON Body 생성
             String body = String.format("""
                     {
                       "origin": {
@@ -237,7 +243,7 @@ public class TripService {
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("X-Goog-Api-Key", googleApiKey);
-            headers.set("X-Goog-FieldMask", "routes.duration"); // 최소 응답 설정
+            headers.set("X-Goog-FieldMask", "routes.duration");
 
             HttpEntity<String> request = new HttpEntity<>(body, headers);
 
@@ -250,15 +256,14 @@ public class TripService {
 
             // 응답 파싱
             JsonNode root = objectMapper.readTree(response.getBody());
-            String durationStr = root.path("routes").get(0).path("duration").asText(); // "1018s"
-            int seconds = Integer.parseInt(durationStr.replace("s", ""));
+            String durationStr = root.path("routes").get(0).path("duration").asText();
 
             if (durationStr.isEmpty()) {
                 System.out.println("Duration not found.");
                 return -1;
             }
 
-            return seconds; // 초 단위
+            return Integer.parseInt(durationStr.replace("s", ""));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -291,10 +296,15 @@ public class TripService {
         }
     }
 
-
     @Transactional
     public boolean saveTripSchedules(int tripId, List<TripScheduleDto> schedules) {
         tripMapper.deleteTripSchedules(tripId);
+
+        // ✅ 새로 저장할 일정이 없다면 delete만 하고 true 반환
+        if (schedules == null || schedules.isEmpty()) {
+            return true;
+        }
+
         List<TripSchedule> tripSchedules = schedules.stream()
                 .map(schedule -> schedule.toTripSchedule())
                 .collect(Collectors.toList());

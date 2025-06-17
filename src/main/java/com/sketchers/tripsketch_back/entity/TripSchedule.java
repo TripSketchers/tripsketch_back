@@ -21,10 +21,8 @@ public class TripSchedule {
     private int placeId;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private Date date;
-    @JsonFormat(pattern = "HH:mm")
-    private LocalTime startTime;
-    @JsonFormat(pattern = "HH:mm")
-    private LocalTime endTime;
+    private String startTime;
+    private String endTime;
     private int stayTime;
     private int travelTime;
     private int position;
