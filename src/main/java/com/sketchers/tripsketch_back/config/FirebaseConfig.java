@@ -35,7 +35,6 @@ public class FirebaseConfig {
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseApp.initializeApp(options);
             }
-            System.out.println("🔥 Firebase 초기화 완료!");
         }
     }
 }

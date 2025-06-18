@@ -4,6 +4,7 @@ import com.sketchers.tripsketch_back.dto.PhotoRespDto;
 import com.sketchers.tripsketch_back.dto.TripDestinationRespDto;
 import com.sketchers.tripsketch_back.dto.trip.TripDto;
 import com.sketchers.tripsketch_back.entity.Photo;
+import com.sketchers.tripsketch_back.entity.Trip;
 import com.sketchers.tripsketch_back.repository.MainMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,7 +33,11 @@ public class MainService {
     }
 
     public TripDto getUpcomingTrip(int userId) {
-        return mainMapper.getUpcomingTrip(userId).toTripDto();
+        Trip trip = mainMapper.getUpcomingTrip(userId);
+        if (trip == null) {
+            return null; // 또는 Optional.empty(), 또는 적절한 응답 처리
+        }
+        return trip.toTripDto();
     }
 
     public List<PhotoRespDto> getRecentAlbums(int userId) {

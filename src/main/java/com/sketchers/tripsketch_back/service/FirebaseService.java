@@ -10,23 +10,11 @@ import java.util.Map;
 
 @Service
 public class FirebaseService {
-    public String createFirebaseTokenWithClaims(String uid, boolean isAdmin) {
-        setClaims(uid, isAdmin);  // 권한 클레임 세팅
-
+    public String createFirebaseTokenWithClaims(String uid) {
         try {
             return FirebaseAuth.getInstance().createCustomToken(uid);
         } catch (FirebaseAuthException e) {
             throw new FirebaseTokenException("Firebase 토큰 생성 실패", e);
-        }
-    }
-
-    public void setClaims(String uid, boolean isAdmin) {
-        try {
-            Map<String, Object> claims = new HashMap<>();
-            claims.put("admin", isAdmin);
-            FirebaseAuth.getInstance().setCustomUserClaims(uid, claims);
-        } catch (FirebaseAuthException e) {
-            throw new FirebaseTokenException("Firebase 클레임 설정 실패", e);
         }
     }
 }
