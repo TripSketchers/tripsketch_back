@@ -1,7 +1,6 @@
 package com.sketchers.tripsketch_back.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.sketchers.tripsketch_back.dto.trip.create.PlaceInfoDto;
 import lombok.Data;
 
 import java.util.List;

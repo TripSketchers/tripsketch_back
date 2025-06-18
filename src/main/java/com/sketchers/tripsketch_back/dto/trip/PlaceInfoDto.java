@@ -1,4 +1,4 @@
-package com.sketchers.tripsketch_back.dto.trip.create;
+package com.sketchers.tripsketch_back.dto.trip;
 
 import com.sketchers.tripsketch_back.entity.Place;
 import lombok.Builder;
@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 @Builder
 public class PlaceInfoDto {
+    private int placeId;
     private String googlePlaceId;
     private String name;
     private String address;
@@ -18,6 +19,7 @@ public class PlaceInfoDto {
 
     public Place toPlace() {
         return Place.builder()
+                .placeId(placeId)
                 .googlePlaceId(googlePlaceId)
                 .name(name)
                 .address(address)

@@ -6,15 +6,37 @@
     <insert id="insertTrip" useGeneratedKeys="true" keyProperty="tripId">
         insert into trip_tb
         values(
-            0,
-            #{userId},
-            #{title},
-            #{startDate},
-            #{endDate},
-            #{tripDestinationId},
-            #{transportType}
+        0,
+        #{userId},
+        #{title},
+        #{startDate},
+        #{endDate},
+        #{tripDestinationId},
+        #{transportType}
         )
     </insert>
+    <update id="updateTrip">
+        UPDATE trip_tb
+        SET
+        title = #{title},
+        start_date = #{startDate},
+        end_date = #{endDate},
+        trip_destination_id = #{tripDestinationId},
+        transport_type = #{transportType}
+        WHERE trip_id = #{tripId}
+    </update>
+    <delete id="deletePlaceStoresByTripId">
+        delete from place_store_tb
+        where trip_id = #{tripId}
+    </delete>
+    <delete id="deleteAccommodationsByTripId">
+        DELETE FROM accommodation_tb
+        WHERE trip_id = #{tripId}
+    </delete>
+    <delete id="deleteTripSchedules">
+        delete from trip_schedule_tb
+        where trip_id = #{tripId}
+    </delete>
 
     <select id="findByGooglePlaceId" resultType="com.sketchers.tripsketch_back.entity.Place">
         SELECT *
@@ -22,39 +44,123 @@
         WHERE google_place_id = #{googlePlaceId}
     </select>
 
+    <select id="findTripByTripId" resultType="com.sketchers.tripsketch_back.entity.Trip">
+        SELECT
+        trip_id,
+        user_id,
+        title,
+        start_date,
+        end_date,
+        ko_name as tripDestinationKoName,
+        tt.trip_destination_id,
+        transport_type
+        from
+        trip_tb tt
+        left outer join trip_destination_tb tdt on(tdt.trip_destination_id = tt.trip_destination_id)
+        where
+        trip_id = #{tripId}
+    </select>
+
+    <select id="findStoredPlaceByTripId" resultType="com.sketchers.tripsketch_back.entity.PlaceStore">
+        SELECT *
+        FROM place_store_tb
+        WHERE trip_id = #{tripId}
+    </select>
+
+    <select id="findStoredAccByTripId" resultType="com.sketchers.tripsketch_back.entity.Accommodation">
+        SELECT *
+        FROM accommodation_tb
+        WHERE trip_id = #{tripId}
+    </select>
+
+    <select id="findTripScheduleByTripId" resultType="com.sketchers.tripsketch_back.entity.TripSchedule">
+        SELECT *
+        FROM trip_schedule_tb
+        WHERE trip_id = #{tripId}
+    </select>
+    <select id="findPlaceByPlaceId" resultType="com.sketchers.tripsketch_back.entity.Place">
+        SELECT *
+        FROM place_tb
+        WHERE place_id = #{placeId}
+    </select>
+    <select id="findTripDestinationByTdId" resultType="com.sketchers.tripsketch_back.entity.TripDestination">
+        select
+        en_name,
+        ko_name,
+        low_lat,
+        low_lng,
+        high_lat,
+        high_lng,
+        img
+        from
+        trip_destination_tb
+        where
+        trip_destination_id = #{tripDestinationId}
+    </select>
+
     <insert id="insertPlace" useGeneratedKeys="true" keyProperty="placeId">
         INSERT INTO place_tb
         VALUES (
-            0,
-            #{googlePlaceId},
-            #{name},
-            #{address},
-            #{latitude},
-            #{longitude},
-            #{category},
-            #{rating},
-            #{photoReference}
+        0,
+        #{googlePlaceId},
+        #{name},
+        #{address},
+        #{latitude},
+        #{longitude},
+        #{category},
+        #{rating},
+        #{photoReference}
         )
     </insert>
 
     <insert id="insertPlaceStore" useGeneratedKeys="true" keyProperty="placeStoreId">
         INSERT INTO place_store_tb
         VALUES (
-            0,
-            #{placeId},
-            #{tripId},
-            #{stayTime}
+        0,
+        #{placeId},
+        #{tripId}
         )
     </insert>
 
     <insert id="insertAccommodation" useGeneratedKeys="true" keyProperty="accommodationId">
         INSERT INTO accommodation_tb
         VALUES (
-            0,
-            #{tripId},
-            #{placeId},
-            #{checkInDate},
-            #{checkOutDate}
+        0,
+        #{tripId},
+        #{placeId},
+        #{checkInDate},
+        #{checkOutDate}
         )
+    </insert>
+    <insert id="insertTripSchedules">
+        INSERT INTO trip_schedule_tb (
+        trip_schedule_id,
+        trip_id,
+        place_id,
+        date,
+        start_time,
+        end_time,
+        stay_time,
+        is_locked,
+        travel_time,
+        position,
+        is_accommodation
+        )
+        VALUES
+        <foreach collection="tripSchedules" item="s" separator=",">
+            (
+            0,
+            #{s.tripId},
+            #{s.placeId},
+            #{s.date},
+            #{s.startTime},
+            #{s.endTime},
+            #{s.stayTime},
+            #{s.isLocked},
+            #{s.travelTime},
+            #{s.position},
+            #{s.isAccommodation}
+            )
+        </foreach>
     </insert>
 </mapper>

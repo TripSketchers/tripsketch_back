@@ -1,6 +1,6 @@
 package com.sketchers.tripsketch_back.entity;
 
-import com.sketchers.tripsketch_back.dto.TripDto;
+import com.sketchers.tripsketch_back.dto.trip.TripDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

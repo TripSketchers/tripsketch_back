@@ -1,15 +1,19 @@
-package com.sketchers.tripsketch_back.dto.trip.create;
+package com.sketchers.tripsketch_back.dto.trip;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.sketchers.tripsketch_back.entity.Accommodation;
-import com.sketchers.tripsketch_back.entity.Place;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-public class StoredAccommodationReqDto {
+@Builder
+public class StoredAccommodationDto {
     private PlaceInfoDto place;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private Date checkInDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd", timezone = "Asia/Seoul")
     private Date checkOutDate;
 
     public Accommodation toAccommodation () {
