@@ -4,7 +4,6 @@ import com.sketchers.tripsketch_back.aop.annotation.ValidAop;
 import com.sketchers.tripsketch_back.dto.Mypage.ShareTripReqDto;
 import com.sketchers.tripsketch_back.dto.PasswordChangeReqDto;
 import com.sketchers.tripsketch_back.dto.PrincipalRespDto;
-import com.sketchers.tripsketch_back.dto.trip.create.TripCreateReqDto;
 import com.sketchers.tripsketch_back.entity.User;
 import com.sketchers.tripsketch_back.security.PrincipalUser;
 import com.sketchers.tripsketch_back.service.AccountService;
