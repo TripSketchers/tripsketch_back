@@ -4,6 +4,7 @@ import com.sketchers.tripsketch_back.entity.User;
 import com.sketchers.tripsketch_back.jwt.JwtProvider;
 import com.sketchers.tripsketch_back.repository.AuthMapper;
 import com.sketchers.tripsketch_back.security.PrincipalUser;
+import com.sketchers.tripsketch_back.service.FirebaseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -23,6 +24,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
     private final AuthMapper authMapper;
     private final JwtProvider jwtProvider;
+    private final FirebaseService firebaseService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -46,7 +48,15 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         UsernamePasswordAuthenticationToken authenticationToken
                 = new UsernamePasswordAuthenticationToken(principalUser, null, principalUser.getAuthorities());
         String accessToken = jwtProvider.generateToken(authenticationToken);
-        response.sendRedirect("http://localhost:3000/auth/oauth2/signin" +
-                "?token=" + URLEncoder.encode(accessToken));
+
+        String firebaseToken = firebaseService.createFirebaseTokenWithClaims(principalUser.getUser().getEmail());
+
+        String redirectUrl = String.format(
+                "http://localhost:3000/auth/oauth2/signin?token=%s&firebaseToken=%s",
+                URLEncoder.encode(accessToken, "UTF-8"),
+                URLEncoder.encode(firebaseToken, "UTF-8")
+        );
+
+        response.sendRedirect(redirectUrl);
     }
 }
