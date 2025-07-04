@@ -35,9 +35,9 @@
         ORDER BY
             photo_id ASC
     </select>
-    <select id="getTripStartDate" resultType="string">
+    <select id="getTripInfo" resultType="com.sketchers.tripsketch_back.entity.Trip">
         select
-            start_date
+            start_date, title
         from
             trip_tb
         where
