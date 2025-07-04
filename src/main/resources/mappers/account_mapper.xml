@@ -66,19 +66,16 @@
                 WHEN start_date > NOW() THEN 2                         -- 미래
                 ELSE 3                                                 -- 과거
             END,
-            CASE
+        CASE
                 WHEN NOW() >= start_date AND end_date >= NOW() THEN start_date  -- 여행 중: 시작 빠른 순
                 WHEN start_date = CURRENT_DATE THEN start_date                  -- D-Day: 오늘
-                WHEN start_date > NOW() THEN start_date                         -- 미래: 오름차순
-                ELSE end_date                                                   -- 과거: 종료일 기준 내림차순
-            END
-            ASC,  -- ASC지만 마지막은 DESC로 조절해야 함
+                WHEN start_date > NOW() THEN start_date                         -- 미래: 시작 빠른 순
+                ELSE NULL                                                       -- 과거는 여기서 정렬 X
+            END ASC,
             CASE
-                WHEN start_date > NOW() THEN NULL
-                WHEN start_date = CURRENT_DATE THEN NULL
-                WHEN NOW() >= start_date AND end_date >= NOW() THEN NULL
+                WHEN start_date > NOW() OR NOW() BETWEEN start_date AND end_date OR start_date = CURRENT_DATE THEN NULL
                 ELSE end_date
-            END DESC  -- 과거 일정만 DESC로 재조정
+            END DESC;  -- 과거: 종료일 늦은 순
     </select>
     <select id="findOwnerByTripId" resultType="com.sketchers.tripsketch_back.entity.User" parameterType="int">
         select

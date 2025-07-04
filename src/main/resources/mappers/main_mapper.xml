@@ -35,31 +35,43 @@
         LIMIT 1
     </select>
     <select id="getRecentAlbums" resultType="com.sketchers.tripsketch_back.entity.Photo">
-        SELECT p.*, a.trip_id
-        FROM photo_tb p
-        JOIN album_tb a ON p.album_id = a.album_id
-        JOIN (
-            SELECT album_id, MAX(photo_id) AS max_photo_id
-            FROM photo_tb
-            WHERE album_id IN (
-                SELECT a.album_id
-                FROM (
-                    SELECT album_id
+        SELECT
+            a.album_id,
+            a.trip_id,
+            p.*
+        FROM (
+            -- 최근 앨범 3개 추출 (trip_id 기반)
+            SELECT album_id, trip_id
+            FROM (
+                SELECT album_id, trip_id
+                FROM album_tb
+                WHERE trip_id = (
+                    -- 가장 최근 사진의 trip_id 구하기
+                    SELECT trip_id
                     FROM album_tb
-                    WHERE trip_id = (
-                        SELECT tt.trip_id
-                        FROM tripsketch.trip_tb tt
-                        WHERE tt.user_id = 5
-                          AND NOW() >= tt.start_date
-                        ORDER BY tt.start_date DESC
+                    WHERE album_id = (
+                        SELECT p.album_id
+                        FROM photo_tb p
+                        JOIN album_tb a ON p.album_id = a.album_id
+                        WHERE a.user_id = 5
+                        ORDER BY p.photo_id DESC
                         LIMIT 1
                     )
-                    ORDER BY album_id DESC
-                    LIMIT 3
-                ) a
-            )
-            GROUP BY album_id
-        ) pm ON p.album_id = pm.album_id AND p.photo_id = pm.max_photo_id;
+                )
+                ORDER BY album_id DESC
+                LIMIT 3
+            ) AS recent_album
+        ) a
+        LEFT JOIN (
+            -- 각 앨범의 가장 최근 사진을 구하기
+            SELECT p1.album_id, p1.photo_url
+            FROM photo_tb p1
+            JOIN (
+                SELECT album_id, MAX(photo_id) AS max_photo_id
+                FROM photo_tb
+                GROUP BY album_id
+            ) p2 ON p1.album_id = p2.album_id AND p1.photo_id = p2.max_photo_id
+        ) p ON a.album_id = p.album_id;
     </select>
     <select id="getPopularDomesticTrip" resultType="com.sketchers.tripsketch_back.entity.TripDestination">
         SELECT
