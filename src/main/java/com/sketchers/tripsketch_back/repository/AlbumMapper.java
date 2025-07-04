@@ -11,7 +11,7 @@ import java.util.List;
 public interface AlbumMapper {
     public List<Album> getAlbums(int userId, int tripId);
     public List<Photo> getPhotosByAlbumId(int albumId);
-    public String getTripStartDate(int userId, int tripId);
+    public Trip getTripInfo(int userId, int tripId);
     public List<TripSchedulePlaceView> getTripSchedules(int userId, int tripId);
     public int getAlbumId(int userId, int tripId, int tripScheduleId);
     public int createTripAlbum(AlbumCreateReqDto request);

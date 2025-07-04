@@ -1,6 +1,7 @@
 package com.sketchers.tripsketch_back.dto;
 
 import com.sketchers.tripsketch_back.entity.Album;
+import com.sketchers.tripsketch_back.entity.Trip;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,6 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AlbumListRespDto { //Album 상위 응답 DTO   //중복 최소화
-    private String startDate;   // trip 시작 날짜
+    private Trip trip;
     private List<Album> albums;
 }

@@ -3,6 +3,7 @@ package com.sketchers.tripsketch_back.service;
 import com.sketchers.tripsketch_back.dto.*;
 import com.sketchers.tripsketch_back.entity.Album;
 import com.sketchers.tripsketch_back.entity.Photo;
+import com.sketchers.tripsketch_back.entity.Trip;
 import com.sketchers.tripsketch_back.repository.AlbumMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,10 +23,10 @@ public class AlbumService {
 
     public AlbumListRespDto getAlbums(int userId, int tripId) {
         List<Album> albums = albumMapper.getAlbums(userId, tripId);
-        String startDate = albumMapper.getTripStartDate(userId, tripId);  // trip_tb에서 가져오기
+        Trip trip = albumMapper.getTripInfo(userId, tripId);  // trip_tb에서 가져오기
 
         AlbumListRespDto albumListRespDto = AlbumListRespDto.builder()
-                .startDate(startDate)
+                .trip(trip)
                 .albums(albums)
                 .build();
         return albumListRespDto;
