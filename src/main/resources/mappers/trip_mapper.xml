@@ -25,6 +25,11 @@
         transport_type = #{transportType}
         WHERE trip_id = #{tripId}
     </update>
+    <update id="updatePhotoReference">
+        UPDATE place_tb
+        SET photo_reference = #{photoReference}
+        WHERE google_place_id = #{googlePlaceId}
+    </update>
     <delete id="deletePlaceStoresByTripId">
         delete from place_store_tb
         where trip_id = #{tripId}
