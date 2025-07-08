@@ -23,4 +23,5 @@ public interface TripMapper {
     public TripDestination findTripDestinationByTdId(int tripDestinationId);
     public int deleteTripSchedules(int tripId);
     public int insertTripSchedules(List<TripSchedule> tripSchedules);
+    public int updatePhotoReference(String googlePlaceId, String photoReference);
 }
