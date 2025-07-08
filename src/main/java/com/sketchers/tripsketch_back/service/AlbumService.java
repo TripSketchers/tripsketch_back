@@ -42,7 +42,7 @@ public class AlbumService {
     }
 
     public TripScheduleRespDto getTripSchedules(int userId, int tripId) {
-        return new TripScheduleRespDto(albumMapper.getTripSchedules(userId, tripId));
+        return new TripScheduleRespDto(albumMapper.getTripSchedules(userId, tripId), albumMapper.getTripInfo(userId, tripId));
     }
 
     @Transactional //실패 시 롤백

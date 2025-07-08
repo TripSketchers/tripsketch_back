@@ -53,7 +53,7 @@
                         SELECT p.album_id
                         FROM photo_tb p
                         JOIN album_tb a ON p.album_id = a.album_id
-                        WHERE a.user_id = 5
+                        WHERE a.user_id = #{userId}
                         ORDER BY p.photo_id DESC
                         LIMIT 1
                     )
