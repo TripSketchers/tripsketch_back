@@ -7,7 +7,7 @@ spring:
         registration:
           google:
             clientName: Google
-            clientId: 840794671105-1prc4js1ap0obob3hvgg7pt243b1tt64.apps.googleusercontent.com
+            clientId: 955078356844-tdscr8bblqhqncg9lpf8d572gvcnqsrq.apps.googleusercontent.com
             clientAuthenticationMethod: client_secret_basic
             authorizationGrantType: authorization_code
             redirect-uri: http://localhost:8080/login/oauth2/code/google
