@@ -19,7 +19,7 @@ public class PlaceService {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
 
-    @Value("${google.places.api.key}")
+    @Value("${GOOGLE_PLACES_API_KEY}")
     private String apiKey;
 
     public PlaceRespDto.textSearch getPlacesByTextSearch(String type, String keyword, String pagetoken, List<Double> location) {

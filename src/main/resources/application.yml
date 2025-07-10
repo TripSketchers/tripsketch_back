@@ -1,6 +1,23 @@
+server:
+  port: 8080
+  serverAddress: localhost
+
 spring:
-  config:
-    import: application-secret.yml
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://crossover.proxy.rlwy.net:58551/tripsketch
+    username: root
+    password: ${DB_PASSWORD}
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: mini011029@gmail.com
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
   security:
     oauth2:
       client:
@@ -8,6 +25,7 @@ spring:
           google:
             clientName: Google
             clientId: 955078356844-tdscr8bblqhqncg9lpf8d572gvcnqsrq.apps.googleusercontent.com
+            clientSecret: ${GOOGLE_CLIENT_SECRET}
             clientAuthenticationMethod: client_secret_basic
             authorizationGrantType: authorization_code
             redirect-uri: http://localhost:8080/login/oauth2/code/google
@@ -16,12 +34,14 @@ spring:
           kakao:
             clientName: Kakao
             clientId: 043b49ec68928d5d4ea92a937d1f05c5
+            clientSecret: ${KAKAO_CLIENT_SECRET}
             clientAuthenticationMethod: POST
             authorizationGrantType: authorization_code
             redirect-uri: http://localhost:8080/login/oauth2/code/kakao
           naver:
             clientName: Naver
             clientId: 7im4pcNAxsjLpc3fJ2TT
+            clientSecret: ${NAVER_CLIENT_SECRET}
             clientAuthenticationMethod: POST
             authorizationGrantType: authorization_code
             redirect-uri: http://localhost:8080/login/oauth2/code/naver
@@ -39,13 +59,24 @@ spring:
             userInfoUri: https://openapi.naver.com/v1/nid/me
             userNameAttribute: response
 
-server:
-  port: 8080
-  serverAddress: localhost
-
 mybatis:
   mapper-locations:
     - /mappers/*.xml
   configuration:
     map-underscore-to-camel-case: true
 
+google:
+  places:
+    api:
+      key: ${GOOGLE_PLACES_API_KEY}
+
+kakao:
+  rest:
+    api:
+      key: ${KAKAO_REST_API_KEY}
+
+jwt:
+  secret: ${JWT_SECRET}
+
+firebase:
+  config-path: classpath:firebase/firebase-service-account.json
