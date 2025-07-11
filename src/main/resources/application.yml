@@ -28,7 +28,7 @@ spring:
             clientSecret: ${GOOGLE_CLIENT_SECRET}
             clientAuthenticationMethod: client_secret_basic
             authorizationGrantType: authorization_code
-            redirect-uri: http://localhost:8080/login/oauth2/code/google
+            redirect-uri: https://tripsketchback-production-a057.up.railway.app/login/oauth2/code/google
             scope:
               - email
           kakao:
@@ -37,14 +37,14 @@ spring:
             clientSecret: ${KAKAO_CLIENT_SECRET}
             clientAuthenticationMethod: POST
             authorizationGrantType: authorization_code
-            redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+            redirect-uri: https://tripsketchback-production-a057.up.railway.app/login/oauth2/code/kakao
           naver:
             clientName: Naver
             clientId: 7im4pcNAxsjLpc3fJ2TT
             clientSecret: ${NAVER_CLIENT_SECRET}
             clientAuthenticationMethod: POST
             authorizationGrantType: authorization_code
-            redirect-uri: http://localhost:8080/login/oauth2/code/naver
+            redirect-uri: https://tripsketchback-production-a057.up.railway.app/login/oauth2/code/naver
             scope:
               - email
         provider:

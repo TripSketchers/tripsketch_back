@@ -52,7 +52,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String firebaseToken = firebaseService.createFirebaseTokenWithClaims(principalUser.getUser().getEmail());
 
         String redirectUrl = String.format(
-                "http://localhost:3000/auth/oauth2/signin?token=%s&firebaseToken=%s",
+                "https://tripsketchers.github.io/auth/oauth2/signin?token=%s&firebaseToken=%s",
                 URLEncoder.encode(accessToken, "UTF-8"),
                 URLEncoder.encode(firebaseToken, "UTF-8")
         );
