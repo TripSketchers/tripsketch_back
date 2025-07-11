@@ -14,7 +14,15 @@
                 WHERE p.album_id = album_tb.album_id
                 ORDER BY p.photo_id ASC
                 LIMIT 1
-            ) AS photo_url
+            ) AS photo_url,
+            case
+                when not exists (
+                    select 1
+                    from trip_schedule_tb tst
+                    where tst.trip_schedule_id = album_tb.trip_schedule_id
+                ) then 1
+                else 0
+            end as trip_schedule_missing_flag
         from
             album_tb
         where

@@ -13,4 +13,5 @@ public class Album {
     private String placeName;
     private String startTime;
     private String photoUrl;
+    private boolean tripScheduleMissingFlag;
 }
