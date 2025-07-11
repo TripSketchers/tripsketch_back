@@ -222,7 +222,7 @@ public class AccountService {
                         "</div>" +
 
                         "<p style=\"font-size: 14px; color: #999; margin-top: 40px; text-align: center;\">" +
-                        "이 이메일은 여행 공유 서비스에서 발송되었습니다.</p>" +
+                        "이 이메일은 \"Trip Sketch\"에서 발송되었습니다.</p>" +
                         "</div>";
 
                 helper.setText(htmlContent, true); // true → HTML 형식 사용

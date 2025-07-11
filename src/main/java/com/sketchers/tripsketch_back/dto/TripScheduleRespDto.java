@@ -1,6 +1,6 @@
 package com.sketchers.tripsketch_back.dto;
 
-import com.sketchers.tripsketch_back.entity.Trip;
+import com.sketchers.tripsketch_back.dto.trip.TripDto;
 import com.sketchers.tripsketch_back.entity.TripSchedulePlaceView;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,5 +15,5 @@ import java.util.List;
 @NoArgsConstructor
 public class TripScheduleRespDto {
     private List<TripSchedulePlaceView> tripSchedulePlaceViews;
-    private Trip trip;
+    private TripDto trip;
 }

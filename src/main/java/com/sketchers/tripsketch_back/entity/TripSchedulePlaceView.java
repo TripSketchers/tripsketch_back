@@ -13,4 +13,5 @@ public class TripSchedulePlaceView {
     private String date;
     private int tripScheduleId;
     private String placeName;
+    private String startTime;
 }

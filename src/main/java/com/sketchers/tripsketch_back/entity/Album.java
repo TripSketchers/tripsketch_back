@@ -11,5 +11,6 @@ public class Album {
     private int albumId;
     private String date;
     private String placeName;
+    private String startTime;
     private String photoUrl;
 }

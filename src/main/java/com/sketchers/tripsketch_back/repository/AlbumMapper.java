@@ -13,7 +13,7 @@ public interface AlbumMapper {
     public List<Photo> getPhotosByAlbumId(int albumId);
     public Trip getTripInfo(int userId, int tripId);
     public List<TripSchedulePlaceView> getTripSchedules(int userId, int tripId);
-    public int getAlbumId(int userId, int tripId, int tripScheduleId);
+    public int getAlbumId(int userId, int tripId, String date, String placeName, String startTime);
     public int createTripAlbum(AlbumCreateReqDto request);
     public int insertPhoto(int albumId, String photoUrl, String memo);
     public boolean editPhotoMemo(int photoId, String memo);
@@ -24,4 +24,5 @@ public interface AlbumMapper {
     public int countPhotos(int albumId);
     public int findOwner(int tripId, int photoId);
     public Photo getPhoto(int photoId);
+    public boolean editAlbumSchedule(AlbumCreateReqDto albumCreateReqDto);
 }
