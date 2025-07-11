@@ -1,5 +1,6 @@
 package com.sketchers.tripsketch_back.controller;
 
+import com.sketchers.tripsketch_back.dto.AlbumCreateReqDto;
 import com.sketchers.tripsketch_back.dto.AlbumUploadReqDto;
 import com.sketchers.tripsketch_back.dto.PhotoDeleteReqDto;
 import com.sketchers.tripsketch_back.security.PrincipalUser;
@@ -77,6 +78,12 @@ public class AlbumController {
     public ResponseEntity<?> deleteSelectedPhotos(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId, @RequestBody List<PhotoDeleteReqDto> checkedPhotos){
         int userId= principalUser.getUser().getUserId();
         return ResponseEntity.ok(albumService.deleteSelectedPhotos(userId, tripId, checkedPhotos));
+    }
+
+    @PutMapping("/api/trips/{tripId}/album")
+    public ResponseEntity<?> editAlbumSchedule(@AuthenticationPrincipal PrincipalUser principalUser, @RequestBody AlbumCreateReqDto albumInfo) {
+        int userId= principalUser.getUser().getUserId();
+        return ResponseEntity.ok(albumService.editAlbumSchedule(userId, albumInfo));
     }
 
 }

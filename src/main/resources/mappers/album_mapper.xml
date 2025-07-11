@@ -5,23 +5,22 @@
 <mapper namespace="com.sketchers.tripsketch_back.repository.AlbumMapper">
     <select id="getAlbums" resultType="com.sketchers.tripsketch_back.entity.Album">
         select
-            at.album_id,
-            v.date,
-            v.place_name,
+            album_id,
+            date,
+            place_name,
+            start_time,
             (   SELECT p.photo_url
                 FROM photo_tb p
-                WHERE p.album_id = at.album_id
+                WHERE p.album_id = album_tb.album_id
                 ORDER BY p.photo_id ASC
                 LIMIT 1
             ) AS photo_url
         from
-            album_tb at
-            left outer join v_trip_schedule_info v on(v.trip_schedule_id = at.trip_schedule_id)
-            left outer join trip_schedule_tb tst on(tst.trip_schedule_id = at.trip_schedule_id)
+            album_tb
         where
-            at.user_id = #{userId}
-            and at.trip_id = #{tripId}
-        order by v.date, tst.position
+            user_id = #{userId}
+            and trip_id = #{tripId}
+        order by date, start_time
     </select>
     <select id="getPhotosByAlbumId" resultType="com.sketchers.tripsketch_back.entity.Photo" >
         select
@@ -37,7 +36,7 @@
     </select>
     <select id="getTripInfo" resultType="com.sketchers.tripsketch_back.entity.Trip">
         select
-            start_date, title
+            start_date, end_date, title
         from
             trip_tb
         where
@@ -48,7 +47,8 @@
         select
             v.date,
         	v.trip_schedule_id,
-        	v.place_name
+        	v.place_name,
+            v.start_time
         from
             trip_tb tt
             left outer join trip_schedule_tb tst on(tst.trip_id = tt.trip_id)
@@ -64,13 +64,15 @@
             FROM album_tb
             WHERE user_id = #{userId}
               AND trip_id = #{tripId}
-              AND trip_schedule_id = #{tripScheduleId}
+              AND date = #{date}
+              AND place_name = #{placeName}
+              AND start_time = #{startTime}
             LIMIT 1
         ), 0)
     </select>
     <insert id="createTripAlbum" useGeneratedKeys="true" keyProperty="albumId">
-        INSERT INTO album_tb (user_id, trip_id, trip_schedule_id)
-        VALUES (#{userId}, #{tripId}, #{tripScheduleId})
+        INSERT INTO album_tb (user_id, trip_id, trip_schedule_id, date, place_name, start_time)
+        VALUES (#{userId}, #{tripId}, #{tripScheduleId}, #{date}, #{placeName}, #{startTime})
     </insert>
     <insert id="insertPhoto">
         INSERT INTO photo_tb (album_id, photo_url, memo)
@@ -125,5 +127,17 @@
             photo_tb
         where
             photo_id = #{photoId}
-        </select>
+    </select>
+    <update id="editAlbumSchedule">
+        UPDATE album_tb
+        SET
+        	trip_schedule_id = #{tripScheduleId},
+            date = #{date},
+            place_name = #{placeName},
+            start_time = #{startTime}
+        WHERE
+        	user_id = #{userId}
+        	AND trip_id = #{tripId}
+        	AND album_id = #{albumId};
+    </update>
 </mapper>

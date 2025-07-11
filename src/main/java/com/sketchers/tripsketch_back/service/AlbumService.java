@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,22 +43,28 @@ public class AlbumService {
     }
 
     public TripScheduleRespDto getTripSchedules(int userId, int tripId) {
-        return new TripScheduleRespDto(albumMapper.getTripSchedules(userId, tripId), albumMapper.getTripInfo(userId, tripId));
+        return new TripScheduleRespDto(albumMapper.getTripSchedules(userId, tripId), albumMapper.getTripInfo(userId, tripId).toTripDto());
     }
 
     @Transactional //실패 시 롤백
     public boolean createTripAlbum(int userId, int tripId, AlbumUploadReqDto albumUploadReqDto) {
         try {
             //1. 해당 일정의 앨범이 존재하는지 검색
-            int tripScheduleId = albumUploadReqDto.getTripScheduleId();
-            int albumId = albumMapper.getAlbumId(userId, tripId, tripScheduleId);
+            String date = albumUploadReqDto.getDate();
+            String placeName = albumUploadReqDto.getPlaceName();
+            String startTime = albumUploadReqDto.getStartTime();
+
+            int albumId = albumMapper.getAlbumId(userId, tripId, date, placeName, startTime);
 
             //2. 앨범이 없으면 새로 생성
             if (albumId == 0) {
                 AlbumCreateReqDto request = AlbumCreateReqDto.builder()
                         .userId(userId)
                         .tripId(tripId)
-                        .tripScheduleId(tripScheduleId)
+                        .tripScheduleId(albumUploadReqDto.getTripScheduleId())
+                        .date(albumUploadReqDto.getDate())
+                        .placeName(albumUploadReqDto.getPlaceName())
+                        .startTime(albumUploadReqDto.getStartTime())
                         .build();
                 albumMapper.createTripAlbum(request);
 
@@ -156,11 +163,8 @@ public class AlbumService {
         }
     }
 
-    public int findOwner(int tripId, int photoId){
-        return  albumMapper.findOwner(tripId, photoId);
-    }
-
-    public PhotoRespDto getPhoto(int albumId) {
-        return albumMapper.getPhoto(albumId).toPhotoDto();
+    public boolean editAlbumSchedule(int userId, AlbumCreateReqDto albumInfo){
+        albumInfo.setUserId(userId);  // 여기서 userId 주입
+        return albumMapper.editAlbumSchedule(albumInfo);
     }
 }
