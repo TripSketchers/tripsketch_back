@@ -21,7 +21,7 @@ public class PhotoService {
     private final RestTemplate restTemplate;
     private final TripMapper tripMapper;
 
-    @Value("${google.places.api.key}")
+    @Value("${GOOGLE_PLACES_API_KEY}")
     private String apiKey;
 
     public byte[] fetchPlacePhoto(String photoName) {

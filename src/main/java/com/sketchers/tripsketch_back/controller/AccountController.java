@@ -26,6 +26,7 @@ public class AccountController {
     public ResponseEntity<?> getPrincipal() {
         PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User user = principalUser.getUser();
+        if (user == null) return ResponseEntity.ok(null);
         PrincipalRespDto principalRespDto = user.toPrincipalDto();
         return ResponseEntity.ok(principalRespDto);
     }

@@ -23,9 +23,9 @@ public class TripService {
     private final TripMapper tripMapper;
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
-    @Value("${google.places.api.key}")
+    @Value("${GOOGLE_PLACES_API_KEY}")
     private String googleApiKey;
-    @Value("${kakao.rest.api.key}")
+    @Value("${KAKAO_REST_API_KEY}")
     private String kakaoApiKey;
 
     @Transactional

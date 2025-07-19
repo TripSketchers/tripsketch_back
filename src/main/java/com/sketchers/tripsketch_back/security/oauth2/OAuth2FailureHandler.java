@@ -13,6 +13,6 @@ import java.io.IOException;
 public class OAuth2FailureHandler implements AuthenticationFailureHandler {
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        response.sendRedirect("http://localhost:3000/auth/signin?error=oauth2");
+        response.sendRedirect("https://tripsketchers.github.io/tripsketch_front/auth/signin?error=oauth2");
     }
 }

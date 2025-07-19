@@ -3,30 +3,26 @@ package com.sketchers.tripsketch_back.config;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.ResourceLoader;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
-import java.io.IOException;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Base64;
 
-@Configuration
+@Component
 public class FirebaseConfig {
-    @Value("${firebase.config-path}")
-    private String firebaseConfigPath;
-
-    private final ResourceLoader resourceLoader;    //Firebase 설정 파일을 로드
-
-    public FirebaseConfig(ResourceLoader resourceLoader) {
-        this.resourceLoader = resourceLoader;
-    }
 
     @PostConstruct
-    public void initialize() throws IOException {
-        Resource resource = resourceLoader.getResource(firebaseConfigPath);
-        try (InputStream serviceAccount = resource.getInputStream()) {
+    public void initialize() throws Exception {
+        String firebaseBase64 = System.getenv("FIREBASE_CONFIG");
+
+        if (firebaseBase64 == null || firebaseBase64.isEmpty()) {
+            throw new IllegalStateException("FIREBASE_CONFIG 환경변수가 비어 있습니다.");
+        }
+
+        byte[] decodedBytes = Base64.getDecoder().decode(firebaseBase64);
+        try (InputStream serviceAccount = new ByteArrayInputStream(decodedBytes)) {
             FirebaseOptions options = FirebaseOptions.builder()
                     .setStorageBucket("tripsketch-6cb8b.appspot.com")
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))

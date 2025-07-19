@@ -9,8 +9,9 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")      // 요청 엔드포인트
-                .allowedMethods("*")    // 요청 메소드 허용
-                .allowedOrigins("*");   // 요청 서버 허용
+        registry.addMapping("/**")
+                .allowedOrigins("https://tripsketchers.github.io") // 프론트 배포 주소
+                .allowedMethods("*")
+                .allowedHeaders("*");
     }
 }
