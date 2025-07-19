@@ -24,7 +24,7 @@ public class FirebaseConfig {
         byte[] decodedBytes = Base64.getDecoder().decode(firebaseBase64);
         try (InputStream serviceAccount = new ByteArrayInputStream(decodedBytes)) {
             FirebaseOptions options = FirebaseOptions.builder()
-                    .setStorageBucket("tripsketch-6cb8b.appspot.com")
+                    .setStorageBucket("tripsketch-66e46.firebasestorage.app")
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
                     .build();
 
