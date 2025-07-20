@@ -6,6 +6,7 @@ import com.sketchers.tripsketch_back.repository.AuthMapper;
 import com.sketchers.tripsketch_back.security.PrincipalUser;
 import com.sketchers.tripsketch_back.service.FirebaseService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -21,6 +22,9 @@ import java.net.URLEncoder;
 @Component
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
+
+    @Value("${custom.base-url-front}")
+    private String baseUrl;
 
     private final AuthMapper authMapper;
     private final JwtProvider jwtProvider;
@@ -52,7 +56,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String firebaseToken = firebaseService.createFirebaseTokenWithClaims(principalUser.getUser().getEmail());
 
         String redirectUrl = String.format(
-                "https://tripsketchers.github.io/tripsketch_front/auth/oauth2/signin?token=%s&firebaseToken=%s",
+                baseUrl + "/auth/oauth2/signin?token=%s&firebaseToken=%s",
                 URLEncoder.encode(accessToken, "UTF-8"),
                 URLEncoder.encode(firebaseToken, "UTF-8")
         );

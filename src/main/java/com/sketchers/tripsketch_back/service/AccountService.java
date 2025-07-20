@@ -34,6 +34,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AccountService {
 
+    @Value("${custom.base-url-front}")
+    private String baseUrl;
+
     private final AccountMapper accountMapper;
     private final JavaMailSender javaMailSender;
     private final JwtProvider jwtProvider;
@@ -216,7 +219,7 @@ public class AccountService {
                         "<p style=\"font-size: 16px; color: #555;\">아래 버튼을 클릭하여 초대장을 확인해 보세요:</p>" +
 
                         "<div style=\"text-align: center; margin-top: 20px;\">" +
-                        "<a href=\"https://tripsketchers.github.io/account/mypage?selectedTab=share\" " +
+                        "<a href=\"" + baseUrl + "/account/mypage?selectedTab=share\" " +
                         "style=\"display: inline-block; padding: 12px 24px; background-color: #4CAF50; color: white; text-decoration: none; font-weight: bold; border-radius: 5px; font-size: 16px;\">" +
                         "초대장 확인하기</a>" +
                         "</div>" +
