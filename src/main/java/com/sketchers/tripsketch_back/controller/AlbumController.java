@@ -18,7 +18,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AlbumController {
     private final AlbumService albumService;
-    private final FirebaseStorageService firebaseStorageService;
 
     // 여행 앨범 조회
     @GetMapping("/api/trips/{tripId}/albums")

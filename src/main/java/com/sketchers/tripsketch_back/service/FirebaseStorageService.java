@@ -6,11 +6,13 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import com.google.firebase.cloud.StorageClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 public class FirebaseStorageService {
-    private final String bucketName = "tripsketch-6cb8b.firebasestorage.app"; // ✅ 버킷 이름 명확하게
+    @Value("${firebase.bucket-name}")
+    private String bucketName;
 
     public boolean deletePhotoFromFirebase(String photoUrl) {
         try {

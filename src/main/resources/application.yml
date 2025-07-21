@@ -84,4 +84,5 @@ jwt:
   secret: ${JWT_SECRET}
 
 firebase:
-  config-path: ${firebase.config.path}
+  config-path: classpath:firebase/firebase-service-account.json
+  bucket-name: tripsketch-firebase.firebasestorage.app

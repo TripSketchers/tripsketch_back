@@ -9,6 +9,7 @@ import com.sketchers.tripsketch_back.security.PrincipalUser;
 import com.sketchers.tripsketch_back.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -24,12 +25,22 @@ public class AccountController {
 
     @GetMapping("/api/account/principal")
     public ResponseEntity<?> getPrincipal() {
-        PrincipalUser principalUser = (PrincipalUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User user = principalUser.getUser();
-        if (user == null) return ResponseEntity.ok(null);
-        PrincipalRespDto principalRespDto = user.toPrincipalDto();
-        return ResponseEntity.ok(principalRespDto);
-    }
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            Object principal = authentication.getPrincipal();
+
+            if (principal instanceof PrincipalUser principalUser) {
+                User user = principalUser.getUser();
+                if (user == null) {
+                    return ResponseEntity.ok(null);
+                }
+                PrincipalRespDto principalRespDto = user.toPrincipalDto();
+                return ResponseEntity.ok(principalRespDto);
+            }
+
+            // 인증되지 않은 사용자일 경우
+            return ResponseEntity.ok(null);
+        }
 
     @DeleteMapping("/api/account/{userId}")
     public ResponseEntity<?> deleteUser(@PathVariable int userId) {
