@@ -25,4 +25,5 @@ public interface AlbumMapper {
     public int findOwner(int tripId, int photoId);
     public Photo getPhoto(int photoId);
     public boolean editAlbumSchedule(AlbumCreateReqDto albumCreateReqDto);
+    public int getAlbumTripScheduleId(int tripId, int albumId);
 }
