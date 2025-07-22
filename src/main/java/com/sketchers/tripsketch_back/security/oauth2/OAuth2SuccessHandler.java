@@ -23,8 +23,8 @@ import java.net.URLEncoder;
 @RequiredArgsConstructor
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
-    @Value("${custom.base-url-front}")
-    private String baseUrl;
+    @Value("${server.frontAddress}")
+    private String frontAddress;
 
     private final AuthMapper authMapper;
     private final JwtProvider jwtProvider;
@@ -56,7 +56,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
         String firebaseToken = firebaseService.createFirebaseTokenWithClaims(principalUser.getUser().getEmail());
 
         String redirectUrl = String.format(
-                baseUrl + "/auth/oauth2/signin?token=%s&firebaseToken=%s",
+                frontAddress + "/auth/oauth2/signin?token=%s&firebaseToken=%s",
                 URLEncoder.encode(accessToken, "UTF-8"),
                 URLEncoder.encode(firebaseToken, "UTF-8")
         );

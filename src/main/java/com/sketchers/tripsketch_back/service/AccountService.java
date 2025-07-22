@@ -34,17 +34,16 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AccountService {
 
-    @Value("${custom.base-url-front}")
-    private String baseUrl;
+    @Value("${server.frontAddress}")
+    private String frontAddress;
+    @Value("${server.serverAddress}")
+    private String serverAddress;
 
     private final AccountMapper accountMapper;
     private final JavaMailSender javaMailSender;
     private final JwtProvider jwtProvider;
     private final AuthMapper authMapper;
     private final PasswordEncoder passwordEncoder;
-
-    @Value("${server.serverAddress}")
-    private String serverAddress;
 
     public int deleteUser(int userId) {
         return accountMapper.deleteUser(userId);
@@ -71,7 +70,7 @@ public class AccountService {
                         "<p>안녕하세요! TripSketch를 이용해 주셔서 감사합니다.</p>" +
                         "<p>이메일 인증을 완료하려면 아래 버튼을 클릭해주세요.</p>" +
                         "<div style=\"text-align: center; margin: 30px 0;\">" +
-                            "<a href='http://" + ("localhost".equals(serverAddress) ? "localhost:8080" : serverAddress) + "/api/account/auth/email?token=" + token + "'" +
+                            "<a href='https://" + serverAddress + "/api/account/auth/email?token=" + token + "'" +
                             " style='display: inline-block; background-color: #3b5c80; color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-size: 16px;'>" +
                             "이메일 인증하기</a>" +
                         "</div>" +
@@ -219,7 +218,7 @@ public class AccountService {
                         "<p style=\"font-size: 16px; color: #555;\">아래 버튼을 클릭하여 초대장을 확인해 보세요:</p>" +
 
                         "<div style=\"text-align: center; margin-top: 20px;\">" +
-                        "<a href=\"" + baseUrl + "/account/mypage?selectedTab=share\" " +
+                        "<a href=\"" + frontAddress + "/account/mypage?selectedTab=share\" " +
                         "style=\"display: inline-block; padding: 12px 24px; background-color: #4CAF50; color: white; text-decoration: none; font-weight: bold; border-radius: 5px; font-size: 16px;\">" +
                         "초대장 확인하기</a>" +
                         "</div>" +

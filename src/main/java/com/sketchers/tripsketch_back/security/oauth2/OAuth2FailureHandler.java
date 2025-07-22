@@ -12,11 +12,11 @@ import java.io.IOException;
 
 @Component
 public class OAuth2FailureHandler implements AuthenticationFailureHandler {
-    @Value("${custom.base-url-front}")
-    private String baseUrl;
+    @Value("${server.frontAddress}")
+    private String frontAddress;
 
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        response.sendRedirect(baseUrl + "/auth/signin?error=oauth2");
+        response.sendRedirect(frontAddress + "/auth/signin?error=oauth2");
     }
 }
