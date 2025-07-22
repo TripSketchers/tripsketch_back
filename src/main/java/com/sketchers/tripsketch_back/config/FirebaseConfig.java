@@ -8,7 +8,9 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Base64;
 import java.util.List;
 
 @Component
@@ -18,30 +20,23 @@ public class FirebaseConfig {
     private String bucketName;
 
     @PostConstruct
-    public void initialize() throws Exception {
-        // resources/firebase/firebase-service-account.json 경로에서 파일을 읽음
-        ClassPathResource resource = new ClassPathResource("firebase/firebase-service-account.json");
+        public void initialize() throws Exception {
+            String firebaseBase64 = System.getenv("FIREBASE_CONFIG");
 
-        try (InputStream serviceAccount = resource.getInputStream()) {
-            GoogleCredentials credentials = GoogleCredentials.fromStream(serviceAccount);
-            System.out.println("✅ Firebase 프로젝트 ID: " + credentials.getQuotaProjectId());
-
-            FirebaseOptions options = FirebaseOptions.builder()
-                    .setCredentials(credentials)
-                    .setStorageBucket(bucketName)
-                    .build();
-
-            List<FirebaseApp> apps = FirebaseApp.getApps();
-
-            if (!apps.isEmpty()) {
-                for (FirebaseApp app : apps) {
-                    System.out.println("❗ 기존 FirebaseApp 삭제: " + app.getName());
-                    app.delete();
-                }
+            if (firebaseBase64 == null || firebaseBase64.isEmpty()) {
+                throw new IllegalStateException("FIREBASE_CONFIG 환경변수가 비어 있습니다.");
             }
 
-            FirebaseApp.initializeApp(options);
-            System.out.println("✅ FirebaseApp 재초기화 완료");
+            byte[] decodedBytes = Base64.getDecoder().decode(firebaseBase64);
+            try (InputStream serviceAccount = new ByteArrayInputStream(decodedBytes)) {
+                FirebaseOptions options = FirebaseOptions.builder()
+                        .setStorageBucket(bucketName)
+                        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                        .build();
+
+                if (FirebaseApp.getApps().isEmpty()) {
+                    FirebaseApp.initializeApp(options);
+                }
+            }
         }
     }
-}
