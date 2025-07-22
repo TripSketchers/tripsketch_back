@@ -18,7 +18,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AlbumController {
     private final AlbumService albumService;
-    private final FirebaseStorageService firebaseStorageService;
 
     // 여행 앨범 조회
     @GetMapping("/api/trips/{tripId}/albums")
@@ -63,7 +62,7 @@ public class AlbumController {
     // 개별 앨범 삭제
     @DeleteMapping("/api/trips/{tripId}/albums/{albumId}")
     public ResponseEntity<?> deleteAlbum(@AuthenticationPrincipal PrincipalUser principalUser, @PathVariable int tripId, @PathVariable int albumId){
-        return ResponseEntity.ok(albumService.deleteAlbum(albumId));
+        return ResponseEntity.ok(albumService.deleteAlbum(tripId, albumId));
     }
 
     // 개별 사진 삭제

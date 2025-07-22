@@ -10,7 +10,7 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("https://tripsketchers.github.io") // 프론트 배포 주소
+                .allowedOrigins("https://tripsketchers.github.io","http://localhost:3000") // 프론트 배포 주소
                 .allowedMethods("*")
                 .allowedHeaders("*");
     }

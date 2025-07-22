@@ -93,7 +93,17 @@ public class AlbumService {
         return albumMapper.editPhotoMemo(photoId, memo);
     }
 
-    public boolean deleteAlbum(int albumId) {
+    public boolean deleteAlbum(int tripId, int albumId) {
+        int tripScheduleId = albumMapper.getAlbumTripScheduleId(tripId, albumId);
+
+        String folderPath = "tripsketch/trip-" + tripId + "/album-" + tripScheduleId + "/";
+        System.out.println("📂 삭제 대상 폴더 경로: " + folderPath);
+
+        boolean firebaseDeleted = firebaseStorageService.deleteFolderFromFirebase(folderPath);
+        if (!firebaseDeleted) {
+            throw new RuntimeException("Firebase 폴더 삭제 실패");
+        }
+
         return albumMapper.deleteAlbum(albumId);
     }
 

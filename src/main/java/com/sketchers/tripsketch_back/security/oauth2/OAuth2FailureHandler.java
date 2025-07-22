@@ -1,5 +1,6 @@
 package com.sketchers.tripsketch_back.security.oauth2;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
@@ -11,8 +12,11 @@ import java.io.IOException;
 
 @Component
 public class OAuth2FailureHandler implements AuthenticationFailureHandler {
+    @Value("${custom.base-url-front}")
+    private String baseUrl;
+
     @Override
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-        response.sendRedirect("https://tripsketchers.github.io/tripsketch_front/auth/signin?error=oauth2");
+        response.sendRedirect(baseUrl + "/auth/signin?error=oauth2");
     }
 }

@@ -148,4 +148,10 @@
         	AND trip_id = #{tripId}
         	AND album_id = #{albumId};
     </update>
+    <select id="getAlbumTripScheduleId" resultType="int">
+        SELECT trip_schedule_id
+        FROM album_tb
+        WHERE trip_id = #{tripId}
+          AND album_id = #{albumId}
+    </select>
 </mapper>
