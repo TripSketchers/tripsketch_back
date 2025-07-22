@@ -1,7 +1,7 @@
 custom:
-  base-url: http://localhost:8080
+  base-url: https://tripsketchback-production-a057.up.railway.app
   # 배포 시: https://tripsketchback-production-a057.up.railway.app
-  base-url-front: http://localhost:3000
+  base-url-front: https://tripsketchers.github.io/tripsketch_front
   # 배포 시: https://tripsketchers.github.io/tripsketch_front
 server:
   port: 8080
