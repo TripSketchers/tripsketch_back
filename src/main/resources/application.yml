@@ -6,8 +6,8 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://crossover.proxy.rlwy.net:58551/tripsketch
-    username: root
+    url: jdbc:mysql://tripsketch-mysql.ctcs426km9m4.ap-northeast-2.rds.amazonaws.com:3306/tripsketch
+    username: admin
     password: ${DB_PASSWORD}
 
   mail:
