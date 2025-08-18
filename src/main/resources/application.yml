@@ -1,6 +1,6 @@
 server:
   port: 8080
-  serverAddress: https://tripsketchback-production-a057.up.railway.app
+  serverAddress: http://43.200.234.235
   frontAddress: https://tripsketchers.github.io/tripsketch_front
 
 spring:
