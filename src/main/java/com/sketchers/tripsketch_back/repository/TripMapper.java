@@ -3,6 +3,7 @@ package com.sketchers.tripsketch_back.repository;
 import com.sketchers.tripsketch_back.entity.*;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.Date;
 import java.util.List;
 
 @Mapper
@@ -18,6 +19,7 @@ public interface TripMapper {
     public List<Accommodation> findStoredAccByTripId(int tripId);
     public List<TripSchedule> findTripScheduleByTripId(int tripId);
     public Place findPlaceByPlaceId(int placeId);
+    public int deleteOutOfRangeSchedulesByTripId(int tripId, Date startDate, Date endDate);
     public int deletePlaceStoresByTripId(int tripId);
     public int deleteAccommodationsByTripId(int tripId);
     public TripDestination findTripDestinationByTdId(int tripDestinationId);

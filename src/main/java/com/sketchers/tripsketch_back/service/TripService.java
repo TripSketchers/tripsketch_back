@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -48,10 +51,24 @@ public class TripService {
     public boolean updateTrip(TripCreateReqDto tripCreateReqDto) {
         try {
             int tripId = tripCreateReqDto.getTrip().getTripId();
-            System.out.println(tripCreateReqDto.getTrip().toTrip());
             tripMapper.updateTrip(tripCreateReqDto.getTrip().toTrip());
 
-            // 기존 데이터 삭제 (완전 교체 방식)
+            // 1) String → Date 변환
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Date startDate = sdf.parse(tripCreateReqDto.getTrip().getStartDate());
+            Date endDate   = sdf.parse(tripCreateReqDto.getTrip().getEndDate());
+
+            // 혹시 start > end일 경우 swap (방어 코드)
+            if (startDate.after(endDate)) {
+                Date tmp = startDate;
+                startDate = endDate;
+                endDate = tmp;
+            }
+
+            // 2) 일정 중 기간 밖 데이터 삭제
+            tripMapper.deleteOutOfRangeSchedulesByTripId(tripId, startDate, endDate);
+
+            // 3) 기존 데이터 삭제 후 재삽입 (완전 교체 방식)
             tripMapper.deletePlaceStoresByTripId(tripId);
             tripMapper.deleteAccommodationsByTripId(tripId);
 
@@ -59,11 +76,12 @@ public class TripService {
             saveAccommodations(tripId, tripCreateReqDto.getStoredAccommodations());
 
             return true;
+        } catch (ParseException pe) {
+            throw new TripInsertException("[여행 수정 실패] - 날짜 파싱 오류: " + pe.getMessage(), pe);
         } catch (Exception e) {
-            throw new TripInsertException("[여행 수정 실패] - " + e.getMessage());
+            throw new TripInsertException("[여행 수정 실패] - " + e.getMessage(), e);
         }
     }
-
 
     private void savePlaces(int tripId, List<StoredPlaceDto> storedPlaces) {
         for (StoredPlaceDto placeDto : storedPlaces) {

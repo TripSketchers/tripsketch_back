@@ -42,6 +42,12 @@
         delete from trip_schedule_tb
         where trip_id = #{tripId}
     </delete>
+    <delete id="deleteOutOfRangeSchedulesByTripId">
+        DELETE FROM trip_schedule_tb
+        WHERE trip_id = #{tripId}
+        AND (`date` &lt; #{startDate} OR `date` &gt; #{endDate})
+    </delete>
+
 
     <select id="findByGooglePlaceId" resultType="com.sketchers.tripsketch_back.entity.Place">
         SELECT *
