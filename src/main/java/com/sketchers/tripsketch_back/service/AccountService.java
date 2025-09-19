@@ -70,7 +70,7 @@ public class AccountService {
                         "<p>안녕하세요! TripSketch를 이용해 주셔서 감사합니다.</p>" +
                         "<p>이메일 인증을 완료하려면 아래 버튼을 클릭해주세요.</p>" +
                         "<div style=\"text-align: center; margin: 30px 0;\">" +
-                            "<a href='https://" + serverAddress + "/api/account/auth/email?token=" + token + "'" +
+                            "<a href='" + serverAddress + "/api/account/auth/email?token=" + token + "'" +
                             " style='display: inline-block; background-color: #3b5c80; color: #ffffff; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-size: 16px;'>" +
                             "이메일 인증하기</a>" +
                         "</div>" +
