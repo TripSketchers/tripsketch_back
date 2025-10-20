@@ -218,107 +218,87 @@ public class TripService {
         }
     }
 
+    // 한국(본토+제주+울릉도+독도)만 포함, 쓰시마 제외
     private boolean isKorea(double lat, double lng) {
-        // 한국 본토 + 제주 + 울릉도 + 독도 범위
-        boolean inKorea =
-                (lat >= 33.05 && lat <= 38.7 && lng >= 126.0 && lng <= 129.6) || // 본토+제주
-                        (lat >= 37.30 && lat <= 37.65 && lng >= 130.6 && lng <= 131.2) || // 울릉도
-                        (lat >= 37.22 && lat <= 37.26 && lng >= 131.85 && lng <= 131.90); // 독도
-
-        // 대마도(쓰시마) 제외
-        boolean isTsushima = (lat >= 34.0 && lat <= 34.9 && lng >= 129.2 && lng <= 129.7);
-
-        return inKorea && !isTsushima;
+        boolean kr = (lat >= 33.05 && lat <= 38.7 && lng >= 126.0 && lng <= 129.6)
+                || (lat >= 37.30 && lat <= 37.65 && lng >= 130.6 && lng <= 131.2)
+                || (lat >= 37.22 && lat <= 37.26 && lng >= 131.85 && lng <= 131.90);
+        boolean tsu = (lat >= 34.0 && lat <= 34.9 && lng >= 129.2 && lng <= 129.7);
+        return kr && !tsu;
     }
 
-    public int getTravelTimeWithRoutesAPI(double originLat, double originLng, double destLat, double destLng, String mode) {
+    // DRIVE / TRANSIT만 지원
+    public int getTravelTimeWithRoutesAPI(double oLat, double oLng, double dLat, double dLng, String mode) {
+        if (Double.compare(oLat, dLat) == 0 && Double.compare(oLng, dLng) == 0) return 0;
+        String m = "TRANSIT".equalsIgnoreCase(mode) ? "TRANSIT" : "DRIVE";
+
+        // 한국 내 DRIVE → 카카오 API
+        if ("DRIVE".equals(m) && isKorea(oLat, oLng)) {
+            return getTravelTimeFromKakao(oLat, oLng, dLat, dLng);
+        }
+
+        // Google Routes 호출
+        boolean withDeparture = "TRANSIT".equals(m);
+        Integer sec = googleRoutesSeconds(oLat, oLng, dLat, dLng, m, withDeparture);
+        return sec != null ? sec : -1;
+    }
+
+    // Google Routes 호출 (성공 시 초 단위, 실패 시 null)
+    private Integer googleRoutesSeconds(double oLat, double oLng, double dLat, double dLng, String mode, boolean withDepartureTime) {
+        String dep = withDepartureTime ? String.format(",\"departureTime\":\"%s\"", java.time.Instant.now()) : "";
+        String body = String.format("""
+                { "origin":{"location":{"latLng":{"latitude":%f,"longitude":%f}}},
+                  "destination":{"location":{"latLng":{"latitude":%f,"longitude":%f}}},
+                  "travelMode":"%s","routingPreference":"TRAFFIC_AWARE","computeAlternativeRoutes":false%s }""",
+                oLat, oLng, dLat, dLng, mode, dep);
+
+        HttpHeaders h = new HttpHeaders();
+        h.setContentType(MediaType.APPLICATION_JSON);
+        h.set("X-Goog-Api-Key", googleApiKey);
+        h.set("X-Goog-FieldMask", "routes.duration");
+
+        ResponseEntity<String> r = restTemplate.postForEntity(
+                "https://routes.googleapis.com/directions/v2:computeRoutes",
+                new HttpEntity<>(body, h), String.class);
+
+        if (r == null || !r.getStatusCode().is2xxSuccessful() || r.getBody() == null || r.getBody().isBlank()) return null;
+
         try {
-            // 출발지와 도착지가 같은 경우: 이동 시간 0 반환
-            if (Double.compare(originLat, destLat) == 0 && Double.compare(originLng, destLng) == 0) {
-                return 0;
-            }
+            JsonNode root = objectMapper.readTree(r.getBody());
+            JsonNode routes = root.path("routes");
+            if (!routes.isArray() || routes.size() == 0) return null;
+            String dur = routes.at("/0/duration").asText("");
+            if (dur.isEmpty()) return null;
 
-            // 한국 내 차량 이동이면 카카오 API 우선 사용
-            if ("DRIVE".equalsIgnoreCase(mode) && isKorea(originLat, originLng)) {
-                return getTravelTimeFromKakao(originLat, originLng, destLat, destLng);
-            }
-
-            // JSON Body 생성
-            String body = String.format("""
-                    {
-                      "origin": {
-                        "location": {
-                          "latLng": {
-                            "latitude": %f,
-                            "longitude": %f
-                          }
-                        }
-                      },
-                      "destination": {
-                        "location": {
-                          "latLng": {
-                            "latitude": %f,
-                            "longitude": %f
-                          }
-                        }
-                      },
-                      "travelMode": "%s"
-                    }
-                    """, originLat, originLng, destLat, destLng, mode);
-
-            // 헤더 설정
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            headers.set("X-Goog-Api-Key", googleApiKey);
-            headers.set("X-Goog-FieldMask", "routes.duration");
-
-            HttpEntity<String> request = new HttpEntity<>(body, headers);
-
-            // API 호출
-            ResponseEntity<String> response = restTemplate.postForEntity(
-                    "https://routes.googleapis.com/directions/v2:computeRoutes",
-                    request,
-                    String.class
-            );
-
-            // 응답 파싱
-            JsonNode root = objectMapper.readTree(response.getBody());
-            String durationStr = root.path("routes").get(0).path("duration").asText();
-
-            if (durationStr.isEmpty()) {
-                System.out.println("Duration not found.");
-                return -1;
-            }
-
-            return Integer.parseInt(durationStr.replace("s", ""));
-
+            // "123s" / "123.45s" 문자열을 바로 변환
+            if (dur.endsWith("s")) dur = dur.substring(0, dur.length() - 1);
+            double sec = Double.parseDouble(dur);
+            return (int) Math.round(sec);
         } catch (Exception e) {
-            e.printStackTrace();
-            return -1;
+            return null;
         }
     }
 
-    private int getTravelTimeFromKakao(double originLat, double originLng, double destLat, double destLng) {
+    // 한국 DRIVE 전용 (성공 시 초, 실패 시 -1)
+    private int getTravelTimeFromKakao(double oLat, double oLng, double dLat, double dLng) {
         try {
-            String url = String.format("https://apis-navi.kakaomobility.com/v1/directions?origin=%f,%f&destination=%f,%f",
-                    originLng, originLat, destLng, destLat);
+            String url = String.format(
+                    "https://apis-navi.kakaomobility.com/v1/directions?origin=%f,%f&destination=%f,%f",
+                    oLng, oLat, dLng, dLat);
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.set("Authorization", "KakaoAK " + kakaoApiKey);
-            HttpEntity<String> request = new HttpEntity<>(headers);
+            HttpHeaders h = new HttpHeaders();
+            h.set("Authorization", "KakaoAK " + kakaoApiKey);
 
-            ResponseEntity<String> response = restTemplate.exchange(
-                    url, HttpMethod.GET, request, String.class);
+            ResponseEntity<String> r = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(h), String.class);
+            if (r == null || !r.getStatusCode().is2xxSuccessful() || r.getBody() == null) return -1;
 
-            JsonNode root = objectMapper.readTree(response.getBody());
-            JsonNode durationNode = root.path("routes").get(0).path("summary").path("duration");
+            JsonNode root = objectMapper.readTree(r.getBody());
+            JsonNode routes = root.path("routes");
+            if (!routes.isArray() || routes.size() == 0) return -1;
 
-            if (durationNode.isMissingNode()) return -1;
-
-            return durationNode.asInt();
-
+            JsonNode n = routes.at("/0/summary/duration"); // 초 단위
+            return n.isMissingNode() ? -1 : n.asInt();
         } catch (Exception e) {
-            e.printStackTrace();
             return -1;
         }
     }
