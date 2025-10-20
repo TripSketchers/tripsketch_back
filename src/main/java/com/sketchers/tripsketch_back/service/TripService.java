@@ -219,7 +219,16 @@ public class TripService {
     }
 
     private boolean isKorea(double lat, double lng) {
-        return lat >= 33.0 && lat <= 39.0 && lng >= 124.0 && lng <= 132.0;
+        // 한국 본토 + 제주 + 울릉도 + 독도 범위
+        boolean inKorea =
+                (lat >= 33.05 && lat <= 38.7 && lng >= 126.0 && lng <= 129.6) || // 본토+제주
+                        (lat >= 37.30 && lat <= 37.65 && lng >= 130.6 && lng <= 131.2) || // 울릉도
+                        (lat >= 37.22 && lat <= 37.26 && lng >= 131.85 && lng <= 131.90); // 독도
+
+        // 대마도(쓰시마) 제외
+        boolean isTsushima = (lat >= 34.0 && lat <= 34.9 && lng >= 129.2 && lng <= 129.7);
+
+        return inKorea && !isTsushima;
     }
 
     public int getTravelTimeWithRoutesAPI(double originLat, double originLng, double destLat, double destLng, String mode) {
