@@ -245,32 +245,41 @@ public class TripService {
 
     // Google Routes 호출 (성공 시 초 단위, 실패 시 null)
     private Integer googleRoutesSeconds(double oLat, double oLng, double dLat, double dLng, String mode, boolean withDepartureTime) {
+        // TRANSIT이면 departureTime만, DRIVE일 때만 routingPreference 포함
         String dep = withDepartureTime ? String.format(",\"departureTime\":\"%s\"", java.time.Instant.now()) : "";
+        String routing = "DRIVE".equalsIgnoreCase(mode) ? ",\"routingPreference\":\"TRAFFIC_AWARE\"" : "";
+
         String body = String.format("""
-                { "origin":{"location":{"latLng":{"latitude":%f,"longitude":%f}}},
-                  "destination":{"location":{"latLng":{"latitude":%f,"longitude":%f}}},
-                  "travelMode":"%s","routingPreference":"TRAFFIC_AWARE","computeAlternativeRoutes":false%s }""",
-                oLat, oLng, dLat, dLng, mode, dep);
+                  {
+                      "origin":{"location":{"latLng":{"latitude":%f,"longitude":%f}}},
+                      "destination":{"location":{"latLng":{"latitude":%f,"longitude":%f}}},
+                      "travelMode":"%s","computeAlternativeRoutes":false%s%s
+                  }""", oLat, oLng, dLat, dLng, mode, routing, dep);
 
         HttpHeaders h = new HttpHeaders();
         h.setContentType(MediaType.APPLICATION_JSON);
         h.set("X-Goog-Api-Key", googleApiKey);
         h.set("X-Goog-FieldMask", "routes.duration");
 
-        ResponseEntity<String> r = restTemplate.postForEntity(
-                "https://routes.googleapis.com/directions/v2:computeRoutes",
-                new HttpEntity<>(body, h), String.class);
+        ResponseEntity<String> r;
+        try {
+            r = restTemplate.postForEntity(
+                    "https://routes.googleapis.com/directions/v2:computeRoutes",
+                    new HttpEntity<>(body, h), String.class);
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            return null;
+        }
 
         if (r == null || !r.getStatusCode().is2xxSuccessful() || r.getBody() == null || r.getBody().isBlank()) return null;
 
         try {
-            JsonNode root = objectMapper.readTree(r.getBody());
-            JsonNode routes = root.path("routes");
+            com.fasterxml.jackson.databind.JsonNode root = objectMapper.readTree(r.getBody());
+            com.fasterxml.jackson.databind.JsonNode routes = root.path("routes");
             if (!routes.isArray() || routes.size() == 0) return null;
+
             String dur = routes.at("/0/duration").asText("");
             if (dur.isEmpty()) return null;
 
-            // "123s" / "123.45s" 문자열을 바로 변환
             if (dur.endsWith("s")) dur = dur.substring(0, dur.length() - 1);
             double sec = Double.parseDouble(dur);
             return (int) Math.round(sec);
