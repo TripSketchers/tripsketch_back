@@ -1,6 +1,6 @@
 server:
   port: 8080
-  serverAddress: https://13.124.221.47.sslip.io
+  serverAddress: https://13-124-221-47.sslip.io
   frontAddress: https://tripsketchers.github.io/tripsketch_front
 
 spring:
