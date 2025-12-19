@@ -25,7 +25,7 @@ spring:
         registration:
           google:
             clientName: Google
-            clientId: 626705641697-cbd9rnndreruhk29is26mg4c3hib40sl.apps.googleusercontent.com
+            clientId: 852930046366-2jmfl7m59edlnt9rlrp1ree8cpn73dvv.apps.googleusercontent.com
             clientSecret: ${GOOGLE_CLIENT_SECRET}
             clientAuthenticationMethod: client_secret_basic
             authorizationGrantType: authorization_code
