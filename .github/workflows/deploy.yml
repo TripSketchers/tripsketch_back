@@ -56,7 +56,7 @@ jobs:
 
       # 생성된 .env 파일을 EC2 경로의 최상위로 전송
       - name: Upload .env to EC2
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
@@ -68,7 +68,7 @@ jobs:
       # target 폴더의 JAR를 EC2의 /app/ 밑으로 업로드
       # strip_components: 1 → tar 내부의 'target/' 디렉터리를 제거하고 바로 파일만 올림
       - name: Upload JAR to EC2
-        uses: appleboy/scp-action@v0.1.7
+        uses: appleboy/scp-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
