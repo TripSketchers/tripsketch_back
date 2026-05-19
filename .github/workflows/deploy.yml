@@ -3,7 +3,6 @@ name: Deploy to EC2 (Docker Compose)
 on:
   push:
     branches: [ main ]
-  workflow_dispatch: {}
 
 jobs:
   deploy:
@@ -37,6 +36,35 @@ jobs:
           script: |
             mkdir -p ${{ secrets.EC2_PATH }}/app
 
+      # 깃허브 Secrets 기반으로 실시간 .env 파일 생성
+      - name: Create .env file
+        run: |
+          echo "DB_URL=${{ secrets.DB_URL }}" >> .env
+          echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+
+          echo "FIREBASE_CONFIG=${{ secrets.FIREBASE_CONFIG }}" >> .env
+          echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env
+          echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
+          echo "GOOGLE_PLACES_API_KEY=${{ secrets.GOOGLE_PLACES_API_KEY }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
+          echo "KAKAO_REST_API_KEY=${{ secrets.KAKAO_REST_API_KEY }}" >> .env
+          echo "NAVER_CLIENT_SECRET=${{ secrets.NAVER_CLIENT_SECRET }}" >> .env
+          
+          echo "CORS_ALLOWED_ORIGINS=${{ secrets.CORS_ALLOWED_ORIGINS }}" >> .env
+
+      # 생성된 .env 파일을 EC2 경로의 최상위로 전송
+      - name: Upload .env to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: ".env"
+          target: ${{ secrets.EC2_PATH }}/
+          overwrite: true
+
       # target 폴더의 JAR를 EC2의 /app/ 밑으로 업로드
       # strip_components: 1 → tar 내부의 'target/' 디렉터리를 제거하고 바로 파일만 올림
       - name: Upload JAR to EC2
@@ -60,6 +88,9 @@ jobs:
           script: |
             set -e
             cd ${{ secrets.EC2_PATH }}
+            
+            # 소유자만 읽을 수 있도록 파일 권한 잠금
+            chmod 600 .env
 
             # 최신 JAR을 표준 이름으로 교체
             LATEST_JAR=$(ls -t app/*.jar | head -n 1)

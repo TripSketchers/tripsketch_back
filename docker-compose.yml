@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  backend:
+    image: tripsketch-backend:latest
+    container_name: tripsketch-app
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    ports:
+      - "8080:8080"
+
+    environment:
+      # RDS(MySQL) 접속 정보
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=${DB_URL}
+      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      # 시크릿/키들
+      - FIREBASE_CONFIG=${FIREBASE_CONFIG}
+      - MAIL_PASSWORD=${MAIL_PASSWORD}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_PLACES_API_KEY=${GOOGLE_PLACES_API_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - KAKAO_CLIENT_SECRET=${KAKAO_CLIENT_SECRET}
+      - KAKAO_REST_API_KEY=${KAKAO_REST_API_KEY}
+      - NAVER_CLIENT_SECRET=${NAVER_CLIENT_SECRET}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+
+    restart: always
+    networks:
+      - tripsketch-net
+
+networks:
+  tripsketch-net:
+    driver: bridge
