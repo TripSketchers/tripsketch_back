@@ -89,6 +89,17 @@ jobs:
           target: ${{ secrets.EC2_PATH }}/
           overwrite: true
 
+      # Dockerfile을 EC2로 전송
+      - name: Upload Dockerfile to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: "Dockerfile"
+          target: ${{ secrets.EC2_PATH }}/
+          overwrite: true
+
       # 가장 최근에 업로드된 JAR를 표준 파일명으로 맞추고, Compose 재기동
       - name: Restart Docker Compose on EC2
         uses: appleboy/ssh-action@v1.2.0
