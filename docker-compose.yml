@@ -9,8 +9,8 @@ services:
       context: .
       dockerfile: Dockerfile
 
-    ports:
-      - "8080:8080"
+    # [보안 격리] 외부 포트 노출(8080:8080)을 제거했습니다.
+    # 이제 외부 요청은 Caddy가 안전하게 받아서 내부적으로 8080에 토스합니다.
 
     environment:
       # RDS(MySQL) 접속 정보
@@ -33,6 +33,30 @@ services:
     networks:
       - tripsketch-net
 
+  caddy:
+    image: caddy:2-alpine
+    container_name: tripsketch-caddy
+    restart: always
+    # 외부 세계와 통신할 HTTP, HTTPS 포트 개방
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+      - ./logs/caddy:/var/log/caddy
+    # 백엔드가 먼저 정상 구동된 후 Caddy가 켜지도록 보장
+    depends_on:
+      - backend
+    networks:
+      - tripsketch-net
+
 networks:
   tripsketch-net:
     driver: bridge
+
+# Caddy가 자동 발급받은 SSL 인증서가 컨테이너 재부팅 시 사라지지 않도록 볼륨 지정
+volumes:
+  caddy_data:
+  caddy_config:
